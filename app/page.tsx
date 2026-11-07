@@ -8,6 +8,7 @@ import {
   Star,
   UsersRound,
 } from "lucide-react"
+import { FeaturesSection } from "@/components/homepage/features-section"
 
 const trendingPositions = [
   "Product Designer",
@@ -24,7 +25,8 @@ const stats = [
 
 export default function Page() {
   return (
-    <main className="relative isolate min-h-[900px] overflow-hidden bg-[#08080a] px-4 text-white sm:min-h-0 sm:px-6">
+    <>
+      <main className="relative isolate min-h-[900px] overflow-hidden bg-[#08080a] px-4 text-white sm:min-h-0 sm:px-6">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-48 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.12),transparent_72%)]"
@@ -173,6 +175,8 @@ export default function Page() {
           ))}
         </div>
       </section>
-    </main>
+      </main>
+      <FeaturesSection />
+    </>
   )
 }

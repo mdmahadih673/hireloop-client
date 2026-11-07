@@ -5,23 +5,41 @@ import Link from "next/link"
 import { useState, type FormEvent } from "react"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react"
+import { signUp } from "@/lib/auth-client"
 
 export default function GetStartedPage() {
   const [showPassword, setShowPassword] = useState(false)
+  const [registrationError, setRegistrationError] = useState("")
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setRegistrationError("")
 
     const formData = new FormData(event.currentTarget)
-    console.log("Registration form submitted", {
-      fullName: formData.get("fullName"),
-      email: formData.get("email"),
-      accountType: formData.get("accountType"),
-      termsAccepted: formData.get("termsAccepted") === "on",
-      password: "[redacted]",
-    })
-  }
 
+    try {
+      const { data, error } = await signUp.email({
+        name: String(formData.get("fullName") ?? ""),
+        email: String(formData.get("email") ?? ""),
+        password: String(formData.get("password") ?? ""),
+      })
+
+      if (error) {
+        console.error("Registration failed", error)
+        setRegistrationError(error.message ?? "Registration failed.")
+        return
+      }
+
+      console.log("Registration successful", data)
+    } catch (error) {
+      console.error("Registration request failed", error)
+      setRegistrationError(
+        error instanceof Error
+          ? error.message
+          : "Registration could not be completed. Please try again.",
+      )
+    }
+  }
   return (
     <main className="relative min-h-svh overflow-hidden bg-[#101014] text-white">
       <div
@@ -144,6 +162,7 @@ export default function GetStartedPage() {
                     name="email"
                     placeholder="you@example.com"
                     required
+                    suppressHydrationWarning
                     type="email"
                   />
                 </div>
@@ -225,8 +244,13 @@ export default function GetStartedPage() {
               </form>
 
               <p className="mt-6 text-center text-xs leading-5 text-white/35">
-                Demo form only. Your password is never printed to the console.
+                Your password is never printed to the console.
               </p>
+              {registrationError && (
+                <p className="mt-3 text-center text-sm text-red-400" role="alert">
+                  {registrationError}
+                </p>
+              )}
             </div>
           </div>
         </section>

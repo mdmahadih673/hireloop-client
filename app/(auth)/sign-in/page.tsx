@@ -5,21 +5,38 @@ import Link from "next/link"
 import { useState, type FormEvent } from "react"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Sparkles } from "lucide-react"
+import { signIn } from "@/lib/auth-client"
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
+  const [signInError, setSignInError] = useState("")
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const formData = new FormData(event.currentTarget)
-    console.log("Sign-in form submitted", {
-      email: formData.get("email"),
-      rememberMe: formData.get("rememberMe") === "on",
-      password: "[redacted]",
-    })
-  }
+    try {
+      const { data, error } = await signIn.email({
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+      })
+      if (error) {
+        console.error("Sign-in failed", error)
+        setSignInError(error.message ?? "Sign-in failed.")
+        return
+      }
 
+      console.log("Sign-in successful", data)
+
+    } catch (error) {
+      console.error("Sign-in request failed", error)
+      setSignInError(
+        error instanceof Error
+          ? error.message
+          : "Sign-in could not be completed. Please try again.",
+      )
+    }
+  }
   return (
     <main className="relative min-h-svh overflow-hidden bg-[#101014] text-white">
       <div
@@ -191,6 +208,11 @@ export default function SignInPage() {
               <p className="mt-8 text-center text-xs leading-5 text-white/35">
                 Demo form only. Your password is never printed to the console.
               </p>
+              {signInError && (
+                <p className="mt-3 text-center text-sm text-red-400" role="alert">
+                  {signInError}
+                </p>
+              )}
             </div>
           </div>
         </section>
