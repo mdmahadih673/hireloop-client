@@ -59,7 +59,7 @@ export function Navbar() {
   return (
     <nav
       aria-label="Main navigation"
-      className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 rounded-2xl border border-white/[0.035] bg-[#111111] px-5 py-[18px] shadow-[0_12px_30px_rgba(0,0,0,0.16)] sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-0"
+      className="sticky top-4 z-50 mx-auto flex w-full max-w-[1200px] flex-col gap-6 rounded-2xl border border-white/[0.035] bg-[#111111] px-5 py-[18px] shadow-[0_12px_30px_rgba(0,0,0,0.16)] sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-0"
     >
       <div className="flex items-center justify-between sm:contents">
         <Brand />
