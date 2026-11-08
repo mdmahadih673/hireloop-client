@@ -1,5 +1,8 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
+import { useSession, signOut } from "@/lib/auth-client"
 
 function Brand() {
   return (
@@ -55,6 +58,65 @@ function SignInLink() {
   )
 }
 
+function AccountMenu() {
+  const { data: session, isPending } = useSession()
+  const user = session?.user
+  const initials = user?.name
+    ?.trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "U"
+
+  if (isPending) {
+    return <span aria-label="Loading account" className="size-9 animate-pulse rounded-full bg-white/10" />
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center gap-5 lg:gap-7">
+        <SignInLink />
+        <GetStartedLabel />
+      </div>
+    )
+  }
+
+  return (
+    <details className="group relative">
+      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1 pl-1 pr-3 text-left transition hover:bg-white/[0.08] [&::-webkit-details-marker]:hidden">
+        {user.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img alt="" className="size-8 rounded-full object-cover" src={user.image} />
+        ) : (
+          <span aria-hidden="true" className="flex size-8 items-center justify-center rounded-full bg-[#6653ff] text-xs font-semibold text-white">
+            {initials}
+          </span>
+        )}
+        <span className="max-w-28 truncate text-xs font-medium text-white/90">{user.name || user.email}</span>
+        <span aria-hidden="true" className="text-[10px] text-white/50">▾</span>
+      </summary>
+      <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-white/10 bg-[#18181d] p-1.5 shadow-xl">
+        <div className="border-b border-white/10 px-3 py-2.5">
+          <p className="truncate text-sm font-medium text-white">{user.name || "Your account"}</p>
+          <p className="truncate text-xs text-white/45">{user.email}</p>
+        </div>
+        <Link className="block rounded-lg px-3 py-2.5 text-sm text-white/80 transition hover:bg-white/[0.07] hover:text-white" href="/profile">My Profile</Link>
+        <Link className="block rounded-lg px-3 py-2.5 text-sm text-white/80 transition hover:bg-white/[0.07] hover:text-white" href="/dashboard">Dashboard</Link>
+        <button
+          className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-white/65 transition hover:bg-white/[0.07] hover:text-white"
+          onClick={async () => {
+            await signOut()
+            window.location.assign("/")
+          }}
+          type="button"
+        >
+          Sign out
+        </button>
+      </div>
+    </details>
+  )
+}
+
 export function Navbar() {
   return (
     <nav
@@ -64,8 +126,7 @@ export function Navbar() {
       <div className="flex items-center justify-between sm:contents">
         <Brand />
         <div className="flex items-center gap-4 sm:hidden">
-          <SignInLink />
-          <GetStartedLabel />
+          <AccountMenu />
         </div>
       </div>
 
@@ -76,8 +137,7 @@ export function Navbar() {
       <div className="hidden items-center gap-5 sm:flex lg:gap-7">
         <NavigationLabels />
         <span aria-hidden="true" className="h-5 w-px bg-white/15" />
-        <SignInLink />
-        <GetStartedLabel />
+        <AccountMenu />
       </div>
     </nav>
   )

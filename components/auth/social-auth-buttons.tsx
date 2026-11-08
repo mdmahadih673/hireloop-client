@@ -1,10 +1,17 @@
+import { signIn } from "@/lib/auth-client"
+
 export function SocialAuthButtons() {
-  function handleProviderClick(provider: "Google" | "GitHub") {
-    console.log(`${provider} sign-in requested; OAuth is not configured.`)
+
+
+  async function handleProviderClick(provider: "google" | "github") {
+    await signIn.social({
+      provider,
+      callbackURL: "/",
+    })
   }
 
   const buttonClassName =
-    "flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 text-sm font-medium text-white/85 transition hover:border-white/20 hover:bg-white/[0.07] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a99dff]"
+    "flex h-12 w-full items-center cursor-pointer justify-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 text-sm font-medium text-white/85 transition hover:border-white/20 hover:bg-white/[0.07] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a99dff]"
 
   return (
     <div className="mt-7">
@@ -13,7 +20,7 @@ export function SocialAuthButtons() {
 
         <button
           className={buttonClassName}
-          onClick={() => handleProviderClick("Google")}
+          onClick={() => handleProviderClick("google")}
           type="button"
         >
           <svg
@@ -46,7 +53,7 @@ export function SocialAuthButtons() {
 
         <button
           className={buttonClassName}
-          onClick={() => handleProviderClick("GitHub")}
+          onClick={() => handleProviderClick("github")}
           type="button"
         >
           <svg

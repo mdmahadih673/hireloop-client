@@ -27,6 +27,7 @@ export default function SignInPage() {
       }
 
       console.log("Sign-in successful", data)
+      window.location.assign("/dashboard")
 
     } catch (error) {
       console.error("Sign-in request failed", error)

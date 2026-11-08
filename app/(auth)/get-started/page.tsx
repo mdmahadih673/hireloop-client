@@ -106,6 +106,7 @@ export default function GetStartedPage() {
                 width={132}
               />
             </Link>
+
             <p className="text-sm text-white/55">
               Already have an account?{" "}
               <Link
@@ -115,6 +116,8 @@ export default function GetStartedPage() {
                 Sign in
               </Link>
             </p>
+
+
           </header>
 
           <div className="flex flex-1 items-center justify-center py-10">
@@ -176,13 +179,17 @@ export default function GetStartedPage() {
                   </label>
                   <select
                     className="h-12 w-full appearance-none rounded-xl border border-white/10 bg-[#18181d] px-4 text-sm text-white outline-none transition focus:border-[#8170ff] focus:ring-4 focus:ring-[#6653ff]/15"
-                    defaultValue="job-seeker"
+                    defaultValue="seeker"
                     id="accountType"
                     name="accountType"
                   >
-                    <option value="job-seeker">Find my next opportunity</option>
-                    <option value="hiring-team">Hire great people</option>
+                    <option value="seeker">Job seeker</option>
+                    <option value="recruiter">Recruiter</option>
+                    <option value="admin">Admin (request access)</option>
                   </select>
+                  <p className="mt-2 text-xs leading-5 text-white/45">
+                    Admin selection is saved as an access request. Admin privileges must be granted separately by an administrator.
+                  </p>
                 </div>
 
                 <div>
