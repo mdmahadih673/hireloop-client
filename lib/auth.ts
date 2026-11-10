@@ -11,11 +11,11 @@ export const auth = betterAuth({
     },
     user: {
         additionalFields: {
-            accountType: {
+            role: {
                 type: "string",
                 required: true,
                 defaultValue: "seeker",
-                input: false,
+                input: true,
             },
         },
     },

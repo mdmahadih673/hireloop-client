@@ -22,6 +22,8 @@ export default function GetStartedPage() {
         name: String(formData.get("fullName") ?? ""),
         email: String(formData.get("email") ?? ""),
         password: String(formData.get("password") ?? ""),
+        role: String(formData.get("role") ?? "seeker"),
+        callbackURL: "/",
       })
 
       if (error) {
@@ -173,15 +175,15 @@ export default function GetStartedPage() {
                 <div>
                   <label
                     className="mb-2 block text-sm font-medium text-white/80"
-                    htmlFor="accountType"
+                    htmlFor="role"
                   >
                     I&apos;m here to
                   </label>
                   <select
                     className="h-12 w-full appearance-none rounded-xl border border-white/10 bg-[#18181d] px-4 text-sm text-white outline-none transition focus:border-[#8170ff] focus:ring-4 focus:ring-[#6653ff]/15"
                     defaultValue="seeker"
-                    id="accountType"
-                    name="accountType"
+                    id="role"
+                    name="role"
                   >
                     <option value="seeker">Job seeker</option>
                     <option value="recruiter">Recruiter</option>
