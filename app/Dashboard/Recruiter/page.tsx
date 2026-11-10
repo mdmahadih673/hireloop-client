@@ -8,7 +8,7 @@ const RecruiterDashboardPage = () => {
                 <h1 className="text-2xl font-semibold">Recruiter Dashboard</h1>
                 <Link
                     className="rounded-lg bg-[#6653ff] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#7969ff]"
-                    href="/Dashboard/Recruiter/job/new"
+                    href="/Dashboard/Recruiter/jobs/new"
                 >
                     Create Job Post
                 </Link>

@@ -67,6 +67,8 @@ function AccountMenu() {
     : role === "recruiter"
       ? "/Dashboard/Recruiter"
       : "/Dashboard/Seeker"
+
+      
   const initials = user?.name
     ?.trim()
     .split(/\s+/)

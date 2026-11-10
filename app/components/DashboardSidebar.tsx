@@ -17,13 +17,14 @@ import {
   CreditCard,
   FileText,
   LayoutDashboard,
-  Plus,
+  PlusCircle,
   Settings as SettingsIcon,
   UsersRound,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
 import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 type MenuItem = {
   id: string
@@ -36,14 +37,14 @@ const menuItemsByRole: Record<string, MenuItem[]> = {
   admin: [
     { id: "dashboard", name: "Dashboard", url: "/Dashboard/Admin", icon: LayoutDashboard },
     { id: "users", name: "Users", url: "/Dashboard/Admin/users", icon: UsersRound },
-    { id: "companies", name: "Companies", url: "/companies", icon: Building2 },
-    { id: "jobs", name: "Jobs", url: "/jobs", icon: BriefcaseBusiness },
+    { id: "companies", name: "Companies", url: "/Dashboard/Admin/companies", icon: Building2 },
+    { id: "jobs", name: "Jobs", url: "/Dashboard/Admin/jobs", icon: BriefcaseBusiness },
     { id: "payments", name: "Payments", url: "/Dashboard/Admin/payments", icon: CreditCard },
     { id: "settings", name: "Settings", url: "/Dashboard/Admin/settings", icon: SettingsIcon },
   ],
   seeker: [
     { id: "dashboard", name: "Dashboard", url: "/Dashboard/Seeker", icon: LayoutDashboard },
-    { id: "jobs", name: "Jobs", url: "/jobs", icon: BriefcaseBusiness },
+    { id: "jobs", name: "Jobs", url: "/Dashboard/Seeker/jobs", icon: BriefcaseBusiness },
     { id: "saved-jobs", name: "Saved Jobs", url: "/Dashboard/Seeker/saved-jobs", icon: Bookmark },
     { id: "applications", name: "Applications", url: "/Dashboard/Seeker/applications", icon: FileText },
     { id: "billing", name: "Billing", url: "/Dashboard/Seeker/billing", icon: CreditCard },
@@ -51,9 +52,9 @@ const menuItemsByRole: Record<string, MenuItem[]> = {
   ],
   recruiter: [
     { id: "dashboard", name: "Dashboard", url: "/Dashboard/Recruiter", icon: LayoutDashboard },
-    { id: "my-company", name: "My Company", url: "/companies", icon: Building2 },
+    { id: "my-company", name: "My Company", url: "/Dashboard/Recruiter/companies", icon: Building2 },
     { id: "manage-jobs", name: "Manage Jobs", url: "/Dashboard/Recruiter/jobs", icon: BriefcaseBusiness },
-    { id: "add-job", name: "Add Job", url: "/Dashboard/Recruiter/job/new", icon: Plus },
+    { id: "add-job", name: "Add Job", url: "/Dashboard/Recruiter/jobs/new", icon: PlusCircle },
     { id: "applications", name: "Applications", url: "/Dashboard/Recruiter/applications", icon: FileText },
     { id: "settings", name: "Settings", url: "/Dashboard/Recruiter/settings", icon: SettingsIcon },
   ],
@@ -75,7 +76,7 @@ export function DashboardSidebar() {
           <SidebarMenu>
             {menuItemsByRole[role].map((item) => (
               <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton render={<a href={item.url} />}>
+                <SidebarMenuButton render={<Link href={item.url} />}>
                   <item.icon />
                   <span>{item.name}</span>
                 </SidebarMenuButton>
