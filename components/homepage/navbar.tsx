@@ -101,7 +101,7 @@ function AccountMenu() {
           <p className="truncate text-xs text-white/45">{user.email}</p>
         </div>
         <Link className="block rounded-lg px-3 py-2.5 text-sm text-white/80 transition hover:bg-white/[0.07] hover:text-white" href="/profile">My Profile</Link>
-        <Link className="block rounded-lg px-3 py-2.5 text-sm text-white/80 transition hover:bg-white/[0.07] hover:text-white" href="/dashboard">Dashboard</Link>
+        <Link className="block rounded-lg px-3 py-2.5 text-sm text-white/80 transition hover:bg-white/[0.07] hover:text-white" href="/Dashboard">Dashboard</Link>
         <button
           className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-white/65 transition hover:bg-white/[0.07] hover:text-white"
           onClick={async () => {
