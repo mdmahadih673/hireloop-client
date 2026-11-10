@@ -19,6 +19,7 @@ export default function SignInPage() {
       const { data, error } = await signIn.email({
         email: formData.get("email") as string,
         password: formData.get("password") as string,
+        callbackURL: "/",
       })
       if (error) {
         console.error("Sign-in failed", error)
@@ -27,7 +28,7 @@ export default function SignInPage() {
       }
 
       console.log("Sign-in successful", data)
-      window.location.assign("/dashboard")
+      window.location.assign("/")
 
     } catch (error) {
       console.error("Sign-in request failed", error)

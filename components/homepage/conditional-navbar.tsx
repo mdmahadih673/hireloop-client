@@ -5,7 +5,8 @@ import { Navbar } from "@/components/homepage/navbar"
 
 export function ConditionalNavbar() {
   const pathname = usePathname()
-  const isDashboard = pathname.startsWith("/deshbord") || pathname.startsWith("/dashboard")
+  const normalizedPathname = pathname.toLowerCase()
+  const isDashboard = normalizedPathname.startsWith("/deshbord") || normalizedPathname.startsWith("/dashboard")
 
   if (isDashboard) return null
 

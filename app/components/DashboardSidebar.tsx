@@ -34,28 +34,28 @@ type MenuItem = {
 
 const menuItemsByRole: Record<string, MenuItem[]> = {
   admin: [
-    { id: "dashboard", name: "Dashboard", url: "/dashboard/Admin", icon: LayoutDashboard },
-    { id: "users", name: "Users", url: "/dashboard/Admin/users", icon: UsersRound },
+    { id: "dashboard", name: "Dashboard", url: "/Dashboard/Admin", icon: LayoutDashboard },
+    { id: "users", name: "Users", url: "/Dashboard/Admin/users", icon: UsersRound },
     { id: "companies", name: "Companies", url: "/companies", icon: Building2 },
     { id: "jobs", name: "Jobs", url: "/jobs", icon: BriefcaseBusiness },
-    { id: "payments", name: "Payments", url: "/dashboard/Admin/payments", icon: CreditCard },
-    { id: "settings", name: "Settings", url: "/dashboard/Admin/settings", icon: SettingsIcon },
+    { id: "payments", name: "Payments", url: "/Dashboard/Admin/payments", icon: CreditCard },
+    { id: "settings", name: "Settings", url: "/Dashboard/Admin/settings", icon: SettingsIcon },
   ],
   seeker: [
-    { id: "dashboard", name: "Dashboard", url: "/dashboard/Seeker", icon: LayoutDashboard },
+    { id: "dashboard", name: "Dashboard", url: "/Dashboard/Seeker", icon: LayoutDashboard },
     { id: "jobs", name: "Jobs", url: "/jobs", icon: BriefcaseBusiness },
-    { id: "saved-jobs", name: "Saved Jobs", url: "/dashboard/Seeker/saved-jobs", icon: Bookmark },
-    { id: "applications", name: "Applications", url: "/dashboard/Seeker/applications", icon: FileText },
-    { id: "billing", name: "Billing", url: "/dashboard/Seeker/billing", icon: CreditCard },
-    { id: "settings", name: "Settings", url: "/dashboard/Seeker/settings", icon: SettingsIcon },
+    { id: "saved-jobs", name: "Saved Jobs", url: "/Dashboard/Seeker/saved-jobs", icon: Bookmark },
+    { id: "applications", name: "Applications", url: "/Dashboard/Seeker/applications", icon: FileText },
+    { id: "billing", name: "Billing", url: "/Dashboard/Seeker/billing", icon: CreditCard },
+    { id: "settings", name: "Settings", url: "/Dashboard/Seeker/settings", icon: SettingsIcon },
   ],
   recruiter: [
-    { id: "dashboard", name: "Dashboard", url: "/dashboard/Recruiter", icon: LayoutDashboard },
+    { id: "dashboard", name: "Dashboard", url: "/Dashboard/Recruiter", icon: LayoutDashboard },
     { id: "my-company", name: "My Company", url: "/companies", icon: Building2 },
-    { id: "manage-jobs", name: "Manage Jobs", url: "/dashboard/Recruiter/jobs", icon: BriefcaseBusiness },
-    { id: "add-job", name: "Add Job", url: "/dashboard/Recruiter/job/new", icon: Plus },
-    { id: "applications", name: "Applications", url: "/dashboard/Recruiter/applications", icon: FileText },
-    { id: "settings", name: "Settings", url: "/dashboard/Recruiter/settings", icon: SettingsIcon },
+    { id: "manage-jobs", name: "Manage Jobs", url: "/Dashboard/Recruiter/jobs", icon: BriefcaseBusiness },
+    { id: "add-job", name: "Add Job", url: "/Dashboard/Recruiter/job/new", icon: Plus },
+    { id: "applications", name: "Applications", url: "/Dashboard/Recruiter/applications", icon: FileText },
+    { id: "settings", name: "Settings", url: "/Dashboard/Recruiter/settings", icon: SettingsIcon },
   ],
 }
 
