@@ -12,11 +12,13 @@ import {
   Megaphone,
   Network,
   Settings,
-  Trash2,
   UsersRound,
 } from "lucide-react"
 import type { StoredJob } from "@/lib/actions/jobs"
 import { listJobs } from "@/lib/api/jobs"
+import { UpdateJobButton } from "@/app/components/UpdateJobButton"
+import { DeleteJobButton } from "@/app/components/DeleteJobButton"
+import { ViewJobButton } from "@/app/components/ViewJobButton"
 
 function getSalary(job: StoredJob) {
   if (!job.minSalary && !job.maxSalary) return "Not specified"
@@ -79,7 +81,7 @@ export default async function JobsPage() {
   }
 
   return (
-    <div className="min-h-svh bg-[#111111] px-4 py-6 text-white sm:px-6 lg:px-1 lg:py-3">
+    <div className="min-h-svh bg-[#111111] px-4 py-6 text-white sm:px-6 lg:py-3 lg:pl-8 lg:pr-4">
       <div className="mx-auto max-w-[1395px]">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[11px] text-white/50">
           <span>Manage Jobs</span>
@@ -108,6 +110,8 @@ export default async function JobsPage() {
             {error}
           </p>
         )}
+
+        Displaying the recruiters created and active jobs
 
         <div className="mt-5 space-y-3 md:hidden">
           {jobs.length === 0 && !error ? (
@@ -201,9 +205,12 @@ export default async function JobsPage() {
                     <td className="px-3 py-3.5 sm:px-4"><span className="block whitespace-nowrap text-white/90">{formatDate(job.deadline)}</span><span className="mt-1 block text-[10px] text-white/35">{job.createdAt ? `Posted ${new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(-Math.max(0, Math.floor((now - new Date(job.createdAt).getTime()) / 86400000)), "day")}` : ""}</span></td>
                     <td className="px-3 py-3.5 sm:px-4">
                       <div className="flex items-center justify-end gap-1">
-                        <button aria-label={`Update ${job.title}`} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#39317b]/50 px-2.5 text-[10px] font-medium text-[#c3bcff] transition hover:bg-[#4c419c]" type="button"><Pencil className="size-3.5" />Update</button>
-                        <button aria-label={`Delete ${job.title}`} className="inline-flex size-8 items-center justify-center rounded-lg bg-white/[0.05] text-white/55 transition hover:bg-red-500/15 hover:text-red-300" type="button"><Trash2 className="size-3.5" /></button>
-                        <button aria-label={`More actions for ${job.title}`} className="inline-flex size-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/[0.07] hover:text-white" type="button"><MoreVertical className="size-4" /></button>
+                        <UpdateJobButton job={job} />
+                        <ViewJobButton job={job} />
+                        <DeleteJobButton job={job} />
+                        <button aria-label={`More actions for ${job.title}`} className="inline-flex size-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/[0.07] hover:text-white" type="button">
+                          <MoreVertical className="size-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -226,6 +233,7 @@ function StatusBadge({ status }: { status: string }) {
     </span>
   )
 }
+
 
 function Info({ label, value }: { label: string; value: ReactNode }) {
   return (

@@ -19,6 +19,8 @@ export type JobFormData = {
   frequency: string
   description: string
   requirements: string
+  status?: string
+  _id: string
 }
 
 const fieldClassName =

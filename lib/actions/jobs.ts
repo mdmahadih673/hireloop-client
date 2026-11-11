@@ -9,9 +9,10 @@ export interface JobData {
 export type StoredJob = JobFormData & {
     _id: string;
     createdAt?: string;
+    status?: string;
 };
 
-export const createJob = async (jobData: JobFormData): Promise<unknown> => {
+export const createJob = async (jobData: JobFormData) => {
     const response = await fetch(`${baseUrl}/jobs`, {
         method: 'POST',
         headers: {
@@ -22,4 +23,9 @@ export const createJob = async (jobData: JobFormData): Promise<unknown> => {
     return response.json();
 }
 
-
+export const deleteJob = async (jobId: string) => {
+    const response = await fetch(`${baseUrl}/jobs/${jobId}`, {
+        method: 'DELETE',
+    });
+    return response.json();
+}
