@@ -69,7 +69,7 @@ export function DashboardSidebar() {
   const role = Object.hasOwn(menuItemsByRole, requestedRole) ? requestedRole : "seeker"
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup>
