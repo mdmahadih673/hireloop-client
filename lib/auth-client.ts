@@ -6,19 +6,26 @@ function normalizeAuthUrl(value: string | undefined): string | undefined {
   const candidate = value?.trim()
   if (!candidate) return undefined
 
-  try {
-    return new URL(candidate.includes("://") ? candidate : `https://${candidate}`).origin
-  } catch {
-    return undefined
+  for (const part of candidate.split("||")) {
+    const trimmed = part.trim()
+    if (!trimmed) continue
+
+    try {
+      return new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`).origin
+    } catch {
+      // Ignore malformed fragments and continue to the next possible value.
+    }
   }
+
+  return undefined
 }
 
 export const authClient = createAuthClient({
-  baseURL: normalizeAuthUrl(
-    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
-      process.env.BETTER_AUTH_URL ||
-      process.env.VERCEL_URL
-  ),
+  baseURL:
+    normalizeAuthUrl(process.env.NEXT_PUBLIC_BETTER_AUTH_URL) ||
+    normalizeAuthUrl(process.env.BETTER_AUTH_URL) ||
+    normalizeAuthUrl(process.env.VERCEL_URL) ||
+    "http://localhost:3000",
   plugins: [inferAdditionalFields<typeof auth>()],
 })
 

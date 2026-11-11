@@ -1,6 +1,4 @@
-"use client"
-
-import { useEffect, useState } from "react"
+import { cache, type ReactNode } from "react"
 import Link from "next/link"
 import {
   ArrowUpRight,
@@ -17,7 +15,8 @@ import {
   Trash2,
   UsersRound,
 } from "lucide-react"
-import { listJobs, type StoredJob } from "@/lib/actions/jobs"
+import type { StoredJob } from "@/lib/actions/jobs"
+import { listJobs } from "@/lib/api/jobs"
 
 function getSalary(job: StoredJob) {
   if (!job.minSalary && !job.maxSalary) return "Not specified"
@@ -27,25 +26,28 @@ function getSalary(job: StoredJob) {
     "Per year": "/ yr",
     "Per month": "/ mo",
     "Per hour": "/ hr",
-  }[job.frequency] ?? ""
+  }[job.frequency ?? ""] ?? ""
 
   return `${range}${frequency ? ` ${frequency}` : ""}`
 }
 
-function getStatus(deadline: string) {
+const getNow = cache(() => Date.now())
+
+function getStatus(deadline: string | undefined, now: number) {
   if (!deadline) return "Active"
   const endOfDeadline = new Date(`${deadline}T23:59:59`)
-  return endOfDeadline < new Date() ? "Expired" : "Active"
+  if (Number.isNaN(endOfDeadline.getTime())) return "Active"
+  return endOfDeadline.getTime() < now ? "Expired" : "Active"
 }
 
 function getLocation(job: StoredJob) {
-  const location = job.location.trim() || "Location not specified"
+  const location = (job.location ?? "").trim() || "Location not specified"
   return job.isRemote && !location.toLowerCase().includes("remote")
     ? `Remote · ${location}`
     : location
 }
 
-function formatDate(value: string) {
+function formatDate(value?: string) {
   if (!value) return "No deadline"
   const date = new Date(`${value}T00:00:00`)
   if (Number.isNaN(date.getTime())) return value
@@ -56,7 +58,7 @@ function formatDate(value: string) {
   }).format(date)
 }
 
-function categoryStyle(category: string) {
+function categoryStyle(category: string = "") {
   const value = category.toLowerCase()
   if (value.includes("design")) return { icon: Pencil, color: "text-orange-400", background: "bg-orange-400/10" }
   if (value.includes("marketing")) return { icon: Megaphone, color: "text-violet-300", background: "bg-violet-400/10" }
@@ -65,29 +67,16 @@ function categoryStyle(category: string) {
   return { icon: Code2, color: "text-violet-400", background: "bg-violet-400/10" }
 }
 
-export default function JobsPage() {
-  const [jobs, setJobs] = useState<StoredJob[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState("")
+export default async function JobsPage() {
+  const now = getNow()
+  let jobs: StoredJob[] = []
+  let error: string | null = null
 
-  useEffect(() => {
-    let isMounted = true
-
-    listJobs()
-      .then((data) => {
-        if (isMounted) setJobs(data)
-      })
-      .catch(() => {
-        if (isMounted) setError("Could not load job posts. Check that the jobs API is running.")
-      })
-      .finally(() => {
-        if (isMounted) setIsLoading(false)
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  try {
+    jobs = await listJobs()
+  } catch (loadError) {
+    error = loadError instanceof Error ? loadError.message : "Could not load job posts"
+  }
 
   return (
     <div className="min-h-svh bg-[#111111] px-4 py-6 text-white sm:px-6 lg:px-1 lg:py-3">
@@ -120,18 +109,15 @@ export default function JobsPage() {
           </p>
         )}
 
-        {/* Mobile cards keep every field readable without forcing a wide table onto a phone. */}
         <div className="mt-5 space-y-3 md:hidden">
-          {isLoading ? (
-            <div className="rounded-xl border border-white/[0.08] bg-[#111113] p-6 text-sm text-white/50">Loading job posts…</div>
-          ) : jobs.length === 0 && !error ? (
+          {jobs.length === 0 && !error ? (
             <div className="rounded-xl border border-white/[0.08] bg-[#111113] p-8 text-center">
               <BriefcaseBusiness className="mx-auto size-6 text-white/40" />
               <p className="mt-3 font-medium">No job posts yet</p>
               <p className="mt-1 text-sm text-white/50">Your published jobs will appear here.</p>
             </div>
           ) : jobs.map((job) => {
-            const status = getStatus(job.deadline)
+            const status = getStatus(job.deadline, now)
             return (
               <article key={job._id} className="rounded-xl border border-white/[0.08] bg-[#111113] p-4">
                 <div className="flex items-start justify-between gap-3">
@@ -157,7 +143,6 @@ export default function JobsPage() {
           })}
         </div>
 
-        {/* The desktop table scrolls horizontally at tablet widths rather than squeezing columns. */}
         <div className="mt-5 hidden overflow-x-auto rounded-xl border border-white/[0.08] bg-[#151515] md:block">
           <table className="w-full min-w-[900px] table-fixed border-collapse text-left">
             <colgroup>
@@ -183,12 +168,10 @@ export default function JobsPage() {
               </tr>
             </thead>
             <tbody>
-              {isLoading ? (
-                <tr><td className="px-4 py-10 text-center text-sm text-white/50" colSpan={8}>Loading job posts…</td></tr>
-              ) : jobs.length === 0 && !error ? (
+              {jobs.length === 0 && !error ? (
                 <tr><td className="px-4 py-12 text-center text-sm text-white/50" colSpan={8}>No job posts yet. Create your first job post to see it here.</td></tr>
               ) : jobs.map((job) => {
-                const status = getStatus(job.deadline)
+                const status = getStatus(job.deadline, now)
                 const category = categoryStyle(job.category)
                 const CategoryIcon = category.icon
                 return (
@@ -215,7 +198,7 @@ export default function JobsPage() {
                       <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#c3c0ff]"><UsersRound className="size-3.5 text-[#bfb7ff]" />0 Candidates</span>
                     </td>
                     <td className="px-3 py-3 sm:px-4"><StatusBadge status={status} /></td>
-                    <td className="px-3 py-3.5 sm:px-4"><span className="block whitespace-nowrap text-white/90">{formatDate(job.deadline)}</span><span className="mt-1 block text-[10px] text-white/35">{job.createdAt ? `Posted ${new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(-Math.max(0, Math.floor((Date.now() - new Date(job.createdAt).getTime()) / 86400000)), "day")}` : ""}</span></td>
+                    <td className="px-3 py-3.5 sm:px-4"><span className="block whitespace-nowrap text-white/90">{formatDate(job.deadline)}</span><span className="mt-1 block text-[10px] text-white/35">{job.createdAt ? `Posted ${new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(-Math.max(0, Math.floor((now - new Date(job.createdAt).getTime()) / 86400000)), "day")}` : ""}</span></td>
                     <td className="px-3 py-3.5 sm:px-4">
                       <div className="flex items-center justify-end gap-1">
                         <button aria-label={`Update ${job.title}`} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#39317b]/50 px-2.5 text-[10px] font-medium text-[#c3bcff] transition hover:bg-[#4c419c]" type="button"><Pencil className="size-3.5" />Update</button>
@@ -225,7 +208,7 @@ export default function JobsPage() {
                     </td>
                   </tr>
                 )
-                })}
+              })}
             </tbody>
           </table>
         </div>
@@ -244,7 +227,7 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-function Info({ label, value }: { label: string; value: React.ReactNode }) {
+function Info({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="min-w-0">
       <p className="text-[10px] uppercase tracking-wide text-white/40">{label}</p>

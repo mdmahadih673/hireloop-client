@@ -22,10 +22,4 @@ export const createJob = async (jobData: JobFormData): Promise<unknown> => {
     return response.json();
 }
 
-export const listJobs = async (): Promise<StoredJob[]> => {
-    const response = await fetch(`${baseUrl}/jobs`);
-    if (!response.ok) {
-        throw new Error("Could not load job posts");
-    }
-    return response.json();
-}
+
