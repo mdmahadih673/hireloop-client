@@ -1,7 +1,25 @@
+"use client"
+
 import Link from "next/link"
 import { ArrowLeft, BriefcaseBusiness, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { createJob } from "@/lib/actions/jobs"
+
+export type JobFormData = {
+  title: string
+  companyName: string
+  category: string
+  jobType: string
+  location: string
+  deadline: string
+  isRemote: boolean
+  minSalary: string
+  maxSalary: string
+  frequency: string
+  description: string
+  requirements: string
+}
 
 const fieldClassName =
   "mt-2 h-11 border-white/10 bg-[#0b0b0e] text-white placeholder:text-white/35 focus-visible:border-[#6653ff] focus-visible:ring-[#6653ff]/30"
@@ -46,18 +64,31 @@ function SelectField({
   )
 }
 
-function TextAreaField({ id, placeholder }: { id: string; placeholder: string }) {
+function TextAreaField({ id, placeholder, required = false }: { id: string; placeholder: string; required?: boolean }) {
   return (
     <textarea
       className="mt-2 min-h-32 w-full resize-y rounded-lg border border-white/10 bg-[#0b0b0e] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus-visible:border-[#6653ff] focus-visible:ring-2 focus-visible:ring-[#6653ff]/30"
       id={id}
       name={id}
       placeholder={placeholder}
+      required={required}
     />
   )
 }
 
 export default function NewJobPage() {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const formData = new FormData(event.currentTarget)
+    const jobData = Object.fromEntries(formData.entries()) as unknown as JobFormData
+    jobData.isRemote = formData.has("isRemote")
+
+    const result = await createJob(jobData)
+    console.log(result);
+
+  }
+
   return (
     <div className="min-h-svh bg-[#08080a] px-4 py-8 text-white sm:px-6 lg:px-10">
       <div className="mx-auto max-w-5xl">
@@ -80,7 +111,7 @@ export default function NewJobPage() {
           </div>
         </div>
 
-        <form className="mt-8 space-y-5">
+        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
           <section className="rounded-2xl border border-white/10 bg-[#111114] p-5 sm:p-7">
             <div className="mb-6">
               <h2 className="text-base font-semibold">Job details</h2>
@@ -160,7 +191,7 @@ export default function NewJobPage() {
             </div>
             <div className="space-y-5">
               <Field htmlFor="description" label="Job Description" required>
-                <TextAreaField id="description" placeholder="Describe the role and what the successful candidate will do..." />
+                <TextAreaField id="description" placeholder="Describe the role and what the successful candidate will do..." required />
               </Field>
               <Field htmlFor="requirements" label="Qualifications & Requirements">
                 <TextAreaField id="requirements" placeholder="List the skills, experience, and qualifications required..." />
@@ -172,7 +203,7 @@ export default function NewJobPage() {
             <Button nativeButton={false} render={<Link href="/Dashboard/Recruiter/jobs" />} variant="outline" className="h-10 border-white/15 bg-transparent text-white hover:bg-white/[0.06]">
               <X className="size-4" />Cancel
             </Button>
-            <Button type="button" className="h-10 bg-[#6653ff] px-5 text-white hover:bg-[#7969ff]">
+            <Button type="submit" className="h-10 bg-[#6653ff] px-5 text-white hover:bg-[#7969ff]">
               <Plus className="size-4" />Publish Job
             </Button>
           </div>
