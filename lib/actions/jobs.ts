@@ -1,16 +1,12 @@
-import type { JobFormData } from "@/app/Dashboard/Recruiter/jobs/new/page";
+import type { JobFormData } from "@/lib/types/jobs";
+
+export type { JobFormData, StoredJob } from "@/lib/types/jobs";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
 
 export interface JobData {
     [key: string]: unknown;
 }
-
-export type StoredJob = JobFormData & {
-    _id: string;
-    createdAt?: string;
-    status?: string;
-};
 
 export const createJob = async (jobData: JobFormData) => {
     const response = await fetch(`${baseUrl}/jobs`, {

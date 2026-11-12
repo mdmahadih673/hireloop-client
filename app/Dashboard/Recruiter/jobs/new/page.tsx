@@ -5,23 +5,8 @@ import { ArrowLeft, BriefcaseBusiness, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createJob } from "@/lib/actions/jobs"
-
-export type JobFormData = {
-  title: string
-  companyName: string
-  category: string
-  jobType: string
-  location: string
-  deadline: string
-  isRemote: boolean
-  minSalary: string
-  maxSalary: string
-  frequency: string
-  description: string
-  requirements: string
-  status?: string
-  _id: string
-}
+import { JobFormSection } from "@/components/jobs/JobFormSection"
+import type { JobFormData } from "@/lib/types/jobs"
 
 const fieldClassName =
   "mt-2 h-11 border-white/10 bg-[#0b0b0e] text-white placeholder:text-white/35 focus-visible:border-[#6653ff] focus-visible:ring-[#6653ff]/30"
@@ -114,11 +99,7 @@ export default function NewJobPage() {
         </div>
 
         <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-          <section className="rounded-2xl border border-white/10 bg-[#111114] p-5 sm:p-7">
-            <div className="mb-6">
-              <h2 className="text-base font-semibold">Job details</h2>
-              <p className="mt-1 text-sm text-white/45">Start with the role and company information.</p>
-            </div>
+          <JobFormSection description="Start with the role and company information." title="Job details">
             <div className="grid gap-5 sm:grid-cols-2">
               <Field htmlFor="title" label="Job Title" required>
                 <Input className={fieldClassName} id="title" name="title" placeholder="e.g. Senior Frontend Developer" required />
@@ -161,13 +142,9 @@ export default function NewJobPage() {
                 <span className="mt-1 block text-xs text-white/45">Candidates can apply from any location.</span>
               </span>
             </label>
-          </section>
+          </JobFormSection>
 
-          <section className="rounded-2xl border border-white/10 bg-[#111114] p-5 sm:p-7">
-            <div className="mb-6">
-              <h2 className="text-base font-semibold">Compensation</h2>
-              <p className="mt-1 text-sm text-white/45">Share a salary range with candidates.</p>
-            </div>
+          <JobFormSection description="Share a salary range with candidates." title="Compensation">
             <div className="grid gap-5 sm:grid-cols-3">
               <Field htmlFor="minSalary" label="Minimum Salary">
                 <Input className={fieldClassName} id="minSalary" min="0" name="minSalary" placeholder="e.g. 80000" type="number" />
@@ -184,13 +161,9 @@ export default function NewJobPage() {
                 </SelectField>
               </Field>
             </div>
-          </section>
+          </JobFormSection>
 
-          <section className="rounded-2xl border border-white/10 bg-[#111114] p-5 sm:p-7">
-            <div className="mb-6">
-              <h2 className="text-base font-semibold">Description &amp; requirements</h2>
-              <p className="mt-1 text-sm text-white/45">Describe the work and the experience candidates need.</p>
-            </div>
+          <JobFormSection description="Describe the work and the experience candidates need." title="Description & requirements">
             <div className="space-y-5">
               <Field htmlFor="description" label="Job Description" required>
                 <TextAreaField id="description" placeholder="Describe the role and what the successful candidate will do..." required />
@@ -199,7 +172,7 @@ export default function NewJobPage() {
                 <TextAreaField id="requirements" placeholder="List the skills, experience, and qualifications required..." />
               </Field>
             </div>
-          </section>
+          </JobFormSection>
 
           <div className="flex flex-col-reverse gap-3 pb-8 sm:flex-row sm:justify-end">
             <Button nativeButton={false} render={<Link href="/Dashboard/Recruiter/jobs" />} variant="outline" className="h-10 border-white/15 bg-transparent text-white hover:bg-white/[0.06]">

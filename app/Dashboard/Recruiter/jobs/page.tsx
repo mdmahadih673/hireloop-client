@@ -1,4 +1,4 @@
-import { cache, type ReactNode } from "react"
+import { cache } from "react"
 import Link from "next/link"
 import {
   ArrowUpRight,
@@ -19,6 +19,7 @@ import { listJobs } from "@/lib/api/jobs"
 import { UpdateJobButton } from "@/app/components/UpdateJobButton"
 import { DeleteJobButton } from "@/app/components/DeleteJobButton"
 import { ViewJobButton } from "@/app/components/ViewJobButton"
+import { JobInfo, StatusBadge } from "@/components/jobs/JobListingMeta"
 
 function getSalary(job: StoredJob) {
   if (!job.minSalary && !job.maxSalary) return "Not specified"
@@ -137,10 +138,10 @@ export default async function JobsPage() {
                   {getLocation(job)}
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-4 border-t border-white/[0.07] pt-4 text-xs">
-                  <Info label="Job type" value={job.jobType || "Not specified"} />
-                  <Info label="Compensation" value={getSalary(job)} />
-                  <Info label="Applicants" value={<span className="inline-flex items-center gap-1"><UsersRound className="size-3.5" />0 candidates</span>} />
-                  <Info label="Deadline" value={formatDate(job.deadline)} />
+                  <JobInfo label="Job type" value={job.jobType || "Not specified"} />
+                  <JobInfo label="Compensation" value={getSalary(job)} />
+                  <JobInfo label="Applicants" value={<span className="inline-flex items-center gap-1"><UsersRound className="size-3.5" />0 candidates</span>} />
+                  <JobInfo label="Deadline" value={formatDate(job.deadline)} />
                 </div>
               </article>
             )
@@ -220,26 +221,6 @@ export default async function JobsPage() {
           </table>
         </div>
       </div>
-    </div>
-  )
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const active = status === "Active"
-  return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] ${active ? "bg-[#06351f] text-[#31d381]" : "bg-white/[0.08] text-[#a0a0a8]"}`}>
-      <span className={`size-1.5 rounded-full ${active ? "bg-[#22c879]" : "bg-[#777780]"}`} />
-      {status}
-    </span>
-  )
-}
-
-
-function Info({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="min-w-0">
-      <p className="text-[10px] uppercase tracking-wide text-white/40">{label}</p>
-      <div className="mt-1 break-words text-white/85">{value}</div>
     </div>
   )
 }
