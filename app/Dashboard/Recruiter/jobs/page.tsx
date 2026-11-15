@@ -36,7 +36,10 @@ function getSalary(job: StoredJob) {
 
 const getNow = cache(() => Date.now())
 
-function getStatus(deadline: string | undefined, now: number) {
+function getStatus(status: string | undefined, deadline: string | undefined, now: number) {
+  if (status?.trim()) {
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+  }
   if (!deadline) return "Active"
   const endOfDeadline = new Date(`${deadline}T23:59:59`)
   if (Number.isNaN(endOfDeadline.getTime())) return "Active"
@@ -122,7 +125,7 @@ export default async function JobsPage() {
               <p className="mt-1 text-sm text-white/50">Your published jobs will appear here.</p>
             </div>
           ) : jobs.map((job) => {
-            const status = getStatus(job.deadline, now)
+            const status = getStatus(job.status, job.deadline, now)
             return (
               <article key={job._id} className="rounded-xl border border-white/[0.08] bg-[#111113] p-4">
                 <div className="flex items-start justify-between gap-3">
@@ -176,7 +179,7 @@ export default async function JobsPage() {
               {jobs.length === 0 && !error ? (
                 <tr><td className="px-4 py-12 text-center text-sm text-white/50" colSpan={8}>No job posts yet. Create your first job post to see it here.</td></tr>
               ) : jobs.map((job) => {
-                const status = getStatus(job.deadline, now)
+                const status = getStatus(job.status, job.deadline, now)
                 const category = categoryStyle(job.category)
                 const CategoryIcon = category.icon
                 return (

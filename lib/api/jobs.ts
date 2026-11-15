@@ -1,11 +1,19 @@
-import type { StoredJob } from "../actions/jobs";
+import type { JobFormData, StoredJob } from "@/lib/types/jobs";
 
  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
 
 
 
-export const listJobs = async (): Promise<StoredJob[]> => {
-    const response = await fetch(`${baseUrl}/jobs`, { cache: 'no-store' });
+export const listJobs = async (filters: Partial<JobFormData> = {}): Promise<StoredJob[]> => {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+        if (value !== undefined && value !== null && value !== '') {
+            searchParams.set(key, String(value));
+        }
+    }
+
+    const queryString = searchParams.toString();
+    const response = await fetch(`${baseUrl}/jobs${queryString ? `?${queryString}` : ''}`);
     if (!response.ok) {
         throw new Error("Could not load job posts");
     }

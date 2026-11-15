@@ -10,12 +10,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import type { JobFormData } from "@/lib/types/jobs"
+import type { StoredJob } from "@/lib/types/jobs"
 import { deleteJob } from "@/lib/actions/jobs"
 import { toast } from "@/components/ui/toast"
 import { useRouter } from "next/navigation"
 
-export function DeleteJobButton({ job }: { job: JobFormData }) {
+export function DeleteJobButton({ job }: { job: StoredJob }) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 

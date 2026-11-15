@@ -13,10 +13,10 @@ export type JobFormData = {
   description: string
   requirements: string
   status?: string
-  _id: string
 }
 
 /** Job shape returned by the jobs API. */
 export type StoredJob = JobFormData & {
+  _id: string
   createdAt?: string
 }

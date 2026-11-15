@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { createJob } from "@/lib/actions/jobs"
 import { JobFormSection } from "@/components/jobs/JobFormSection"
 import type { JobFormData } from "@/lib/types/jobs"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 const fieldClassName =
   "mt-2 h-11 border-white/10 bg-[#0b0b0e] text-white placeholder:text-white/35 focus-visible:border-[#6653ff] focus-visible:ring-[#6653ff]/30"
@@ -64,15 +66,28 @@ function TextAreaField({ id, placeholder, required = false }: { id: string; plac
 }
 
 export default function NewJobPage() {
+  const router = useRouter()
+  const [isPublishing, setIsPublishing] = useState(false)
+  const [publishError, setPublishError] = useState("")
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (isPublishing) return
 
     const formData = new FormData(event.currentTarget)
     const jobData = Object.fromEntries(formData.entries()) as unknown as JobFormData
     jobData.isRemote = formData.has("isRemote")
 
-    const result = await createJob(jobData)
-    console.log(result);
+    setIsPublishing(true)
+    setPublishError("")
+    try {
+      await createJob(jobData)
+      router.push("/Dashboard/Recruiter/jobs")
+    } catch (error) {
+      setPublishError(error instanceof Error ? error.message : "Could not publish job. Please try again.")
+    } finally {
+      setIsPublishing(false)
+    }
 
   }
 
@@ -178,8 +193,9 @@ export default function NewJobPage() {
             <Button nativeButton={false} render={<Link href="/Dashboard/Recruiter/jobs" />} variant="outline" className="h-10 border-white/15 bg-transparent text-white hover:bg-white/[0.06]">
               <X className="size-4" />Cancel
             </Button>
-            <Button type="submit" className="h-10 bg-[#6653ff] px-5 text-white hover:bg-[#7969ff]">
-              <Plus className="size-4" />Publish Job
+            {publishError && <p className="mr-auto self-center text-sm text-red-300" role="alert">{publishError}</p>}
+            <Button disabled={isPublishing} type="submit" className="h-10 bg-[#6653ff] px-5 text-white hover:bg-[#7969ff] disabled:cursor-not-allowed disabled:opacity-60">
+              <Plus className="size-4" />{isPublishing ? "Publishing…" : "Publish Job"}
             </Button>
           </div>
         </form>

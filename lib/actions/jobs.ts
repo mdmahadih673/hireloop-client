@@ -16,7 +16,16 @@ export const createJob = async (jobData: JobFormData) => {
         },
         body: JSON.stringify(jobData),
     });
-    return response.json();
+    if (!response.ok) {
+        const details = await response.text().catch(() => "");
+        throw new Error(details || `Could not publish job (HTTP ${response.status}).`);
+    }
+
+    const result: { acknowledged?: boolean } = await response.json();
+    if (result.acknowledged === false) {
+        throw new Error("The job was not saved. Please try again.");
+    }
+    return result;
 }
 
 export const deleteJob = async (jobId: string) => {
