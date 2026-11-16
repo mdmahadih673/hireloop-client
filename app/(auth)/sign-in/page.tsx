@@ -17,20 +17,31 @@ export default function SignInPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-
     const formData = new FormData(event.currentTarget)
-    return signIn.email({
+    try {
+      const { data, error } = await signIn.email({
         email: formData.get("email") as string,
         password: formData.get("password") as string,
         callbackURL: redirect,
       })
-      .then(({ data, error }) => error
-        ? (console.error("Sign-in failed", error), setSignInError(error.message ?? "Sign-in failed."))
-        : (console.log("Sign-in successful", data), window.location.assign(redirect)))
-      .catch((error: unknown) => {
-        console.error("Sign-in request failed", error)
-        setSignInError(error instanceof Error ? error.message : "Sign-in could not be completed. Please try again.")
-      })
+
+      if (error) {
+        // better-auth errors are Error subclasses with non-enumerable props,
+        // so logging the object itself renders as {}. Log the fields instead.
+        const status = error.status
+        console.error(
+          `Sign-in failed (${status ?? "unknown status"}): ${error.message ?? "Unknown error"}`,
+        )
+        setSignInError(error.message ?? "Sign-in failed.")
+        return
+      }
+
+      console.log("Sign-in successful", data)
+      window.location.assign(redirect)
+    } catch (error: unknown) {
+      console.error("Sign-in request failed", error)
+      setSignInError(error instanceof Error ? error.message : "Sign-in could not be completed. Please try again.")
+    }
   }
   return (
     <main className="relative min-h-svh overflow-hidden bg-[#101014] text-white">

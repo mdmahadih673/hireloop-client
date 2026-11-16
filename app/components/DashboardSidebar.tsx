@@ -19,12 +19,14 @@ import {
   LayoutDashboard,
   PlusCircle,
   Settings as SettingsIcon,
+  UserRound,
   UsersRound,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
-import { useSession } from "@/lib/auth-client"
+import { useSession, signOut } from "@/lib/auth-client"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 
 type MenuItem = {
   id: string
@@ -67,16 +69,25 @@ export function DashboardSidebar() {
   const routeRole = pathname.match(/^\/dashboard\/(admin|recruiter|seeker)(?:\/|$)/i)?.[1]?.toLowerCase()
   const requestedRole = routeRole ?? roleName
   const role = Object.hasOwn(menuItemsByRole, requestedRole) ? requestedRole : "seeker"
+  const portalName = role === "seeker" ? "Seeker Portal" : `${role[0].toUpperCase()}${role.slice(1)} Portal`
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader />
+      <SidebarHeader className="gap-4 border-b border-white/[0.07] p-3">
+        <Link aria-label="Hireloop home" className="px-1 py-1" href="/">
+          <Image alt="Hireloop" height={28} priority src="/images/logo.png" width={112} />
+        </Link>
+        <div className="flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.035] p-2">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#29292d] text-white/75"><UserRound className="size-4" /></span>
+          <span className="min-w-0"><span className="block truncate text-[11px] font-medium text-white/90">{portalName}</span><span className="mt-0.5 block truncate text-[10px] text-white/45">{session?.user?.name || "Professional Tier"}</span></span>
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
             {menuItemsByRole[role].map((item) => (
               <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton render={<Link href={item.url} />}>
+                <SidebarMenuButton isActive={pathname.toLowerCase() === item.url.toLowerCase()} render={<Link href={item.url} />}>
                   <item.icon />
                   <span>{item.name}</span>
                 </SidebarMenuButton>
@@ -85,7 +96,10 @@ export function DashboardSidebar() {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter className="gap-2 border-t border-white/[0.07] p-3">
+        <Link className="flex h-9 items-center justify-center rounded-lg bg-white text-[11px] font-semibold text-[#111113] hover:bg-white/90" href="/profile">Post Resume</Link>
+        <button className="flex h-8 items-center gap-2 px-2 text-[11px] text-white/50 transition hover:text-white" onClick={() => signOut().then(() => window.location.assign("/"))} type="button">Logout</button>
+      </SidebarFooter>
     </Sidebar>
   )
 }

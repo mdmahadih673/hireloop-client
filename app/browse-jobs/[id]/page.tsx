@@ -153,7 +153,7 @@ export default async function JobDetailsPage({ params, }: { params: Promise<{ id
                                 <Bookmark aria-hidden="true" className="size-4" />
                             </button>
 
-                            <ApplyNowPage jobs={[job]} />
+                            <ApplyNowPage job={job} />
 
                         </div>
                     </div>

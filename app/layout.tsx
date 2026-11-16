@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
 import { ConditionalNavbar } from "@/components/homepage/conditional-navbar";
+import { Toaster } from "@/components/ui/toast";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -26,7 +27,9 @@ export default function RootLayout({
       <body>
         <ConditionalNavbar />
         <ThemeProvider>
-          {children}</ThemeProvider>
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )
