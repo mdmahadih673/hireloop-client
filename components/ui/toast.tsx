@@ -133,50 +133,22 @@ function ToastClose({
 }
 
 function ToastIcon({ type }: { type: string | undefined }) {
-  let icon: React.ReactNode = null
+  const icon = {
+    success: <CircleCheckIcon aria-hidden="true" />,
+    info: <InfoIcon aria-hidden="true" />,
+    warning: <TriangleAlertIcon aria-hidden="true" />,
+    error: <OctagonXIcon className="text-destructive" aria-hidden="true" />,
+    loading: <Loader2Icon className="animate-spin" aria-hidden="true" />,
+  }[type ?? ""]
 
-  if (type === "success") {
-    icon = (
-      <CircleCheckIcon aria-hidden="true" />
-    )
-  }
-
-  if (type === "info") {
-    icon = (
-      <InfoIcon aria-hidden="true" />
-    )
-  }
-
-  if (type === "warning") {
-    icon = (
-      <TriangleAlertIcon aria-hidden="true" />
-    )
-  }
-
-  if (type === "error") {
-    icon = (
-      <OctagonXIcon className="text-destructive" aria-hidden="true" />
-    )
-  }
-
-  if (type === "loading") {
-    icon = (
-      <Loader2Icon className="animate-spin" aria-hidden="true" />
-    )
-  }
-
-  if (!icon) {
-    return null
-  }
-
-  return (
+  return icon ? (
     <span
       data-slot="toast-icon"
       className="shrink-0 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
     >
       {icon}
     </span>
-  )
+  ) : null
 }
 
 function ToastList() {

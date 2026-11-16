@@ -1,5 +1,6 @@
 /** Fields shared by the create and update job forms. */
 export type JobFormData = {
+  _id?: string
   title: string
   companyName: string
   category: string

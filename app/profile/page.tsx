@@ -11,16 +11,14 @@ export default function ProfilePage() {
   const user = session?.user
 
   useEffect(() => {
-    if (!isPending && !user) router.replace("/sign-in")
+    !isPending && !user && router.replace("/sign-in")
   }, [isPending, router, user])
 
-  if (isPending || !user) {
-    return <main className="min-h-svh bg-[#101014]" aria-label="Loading profile" />
-  }
+  const initials = user?.name?.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "U"
 
-  const initials = user.name?.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "U"
-
-  return (
+  return isPending || !user ? (
+    <main className="min-h-svh bg-[#101014]" aria-label="Loading profile" />
+  ) : (
     <main className="min-h-svh bg-[#101014] px-5 py-12 text-white sm:px-8">
       <section className="mx-auto max-w-3xl">
         <Link className="text-sm text-[#b3a8ff] hover:text-white" href="/dashboard">← Dashboard</Link>

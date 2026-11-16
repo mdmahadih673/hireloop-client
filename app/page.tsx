@@ -86,7 +86,7 @@ export default function Page() {
           </p>
 
           <form
-            action="/jobs"
+            action="/browse-jobs"
             className="mt-6 flex w-full max-w-[640px] items-center gap-2 rounded-xl border border-white/10 bg-[#171719]/95 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.28)] sm:mt-7 sm:gap-3 sm:p-1.5"
             role="search"
           >
@@ -137,7 +137,7 @@ export default function Page() {
             {trendingPositions.map((position) => (
               <Link
                 className="rounded-full border border-white/[0.08] bg-white/[0.08] px-2.5 py-1 text-white/75 transition hover:border-[#8e80ff]/50 hover:bg-[#6653ff]/20 hover:text-white"
-                href={`/jobs?q=${encodeURIComponent(position)}`}
+                href={`/browse-jobs?q=${encodeURIComponent(position)}`}
                 key={position}
               >
                 {position}

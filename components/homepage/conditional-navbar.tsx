@@ -8,7 +8,5 @@ export function ConditionalNavbar() {
   const normalizedPathname = pathname.toLowerCase()
   const isDashboard = normalizedPathname.startsWith("/deshbord") || normalizedPathname.startsWith("/dashboard")
 
-  if (isDashboard) return null
-
-  return <Navbar />
+  return isDashboard ? null : <Navbar />
 }

@@ -22,8 +22,6 @@ import { ViewJobButton } from "@/app/components/ViewJobButton"
 import { JobInfo, StatusBadge } from "@/components/jobs/JobListingMeta"
 
 function getSalary(job: StoredJob) {
-  if (!job.minSalary && !job.maxSalary) return "Not specified"
-
   const range = [job.minSalary, job.maxSalary].filter(Boolean).join(" – ")
   const frequency = {
     "Per year": "/ yr",
@@ -31,19 +29,18 @@ function getSalary(job: StoredJob) {
     "Per hour": "/ hr",
   }[job.frequency ?? ""] ?? ""
 
-  return `${range}${frequency ? ` ${frequency}` : ""}`
+  return range ? `${range}${frequency ? ` ${frequency}` : ""}` : "Not specified"
 }
 
 const getNow = cache(() => Date.now())
 
 function getStatus(status: string | undefined, deadline: string | undefined, now: number) {
-  if (status?.trim()) {
-    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
-  }
-  if (!deadline) return "Active"
   const endOfDeadline = new Date(`${deadline}T23:59:59`)
-  if (Number.isNaN(endOfDeadline.getTime())) return "Active"
-  return endOfDeadline.getTime() < now ? "Expired" : "Active"
+  return status?.trim()
+    ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+    : !deadline || Number.isNaN(endOfDeadline.getTime())
+      ? "Active"
+      : endOfDeadline.getTime() < now ? "Expired" : "Active"
 }
 
 function getLocation(job: StoredJob) {
@@ -54,10 +51,10 @@ function getLocation(job: StoredJob) {
 }
 
 function formatDate(value?: string) {
-  if (!value) return "No deadline"
   const date = new Date(`${value}T00:00:00`)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat("en", {
+  return !value
+    ? "No deadline"
+    : Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en", {
     month: "short",
     day: "2-digit",
     year: "numeric",
@@ -66,23 +63,26 @@ function formatDate(value?: string) {
 
 function categoryStyle(category: string = "") {
   const value = category.toLowerCase()
-  if (value.includes("design")) return { icon: Pencil, color: "text-orange-400", background: "bg-orange-400/10" }
-  if (value.includes("marketing")) return { icon: Megaphone, color: "text-violet-300", background: "bg-violet-400/10" }
-  if (value.includes("quality") || value.includes("qa")) return { icon: Settings, color: "text-indigo-300", background: "bg-indigo-400/10" }
-  if (value.includes("devops") || value.includes("infrastructure")) return { icon: Network, color: "text-sky-400", background: "bg-sky-400/10" }
-  return { icon: Code2, color: "text-violet-400", background: "bg-violet-400/10" }
+  return value.includes("design")
+    ? { icon: Pencil, color: "text-orange-400", background: "bg-orange-400/10" }
+    : value.includes("marketing")
+      ? { icon: Megaphone, color: "text-violet-300", background: "bg-violet-400/10" }
+      : value.includes("quality") || value.includes("qa")
+        ? { icon: Settings, color: "text-indigo-300", background: "bg-indigo-400/10" }
+        : value.includes("devops") || value.includes("infrastructure")
+          ? { icon: Network, color: "text-sky-400", background: "bg-sky-400/10" }
+          : { icon: Code2, color: "text-violet-400", background: "bg-violet-400/10" }
 }
 
 export default async function JobsPage() {
   const now = getNow()
-  let jobs: StoredJob[] = []
-  let error: string | null = null
-
-  try {
-    jobs = await listJobs()
-  } catch (loadError) {
-    error = loadError instanceof Error ? loadError.message : "Could not load job posts"
-  }
+  const result = await listJobs()
+    .then((jobs) => ({ jobs, error: null as string | null }))
+    .catch((loadError: unknown) => ({
+      jobs: [] as StoredJob[],
+      error: loadError instanceof Error ? loadError.message : "Could not load job posts",
+    }))
+  const { jobs, error } = result
 
   return (
     <div className="min-h-svh bg-[#111111] px-4 py-6 text-white sm:px-6 lg:py-3 lg:pl-8 lg:pr-4">

@@ -7,20 +7,13 @@ const db = client.db("hireloopdb");
 
 function normalizeOrigin(value: string | undefined): string | undefined {
   const candidate = value?.trim();
-  if (!candidate) return undefined;
-
-  for (const part of candidate.split("||")) {
-    const trimmed = part.trim();
-    if (!trimmed) continue;
-
-    try {
-      return new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`).origin;
-    } catch {
-      // Try the next candidate if multiple values were concatenated.
-    }
-  }
-
-  return undefined;
+  const validCandidate = candidate
+    ?.split("||")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => part.includes("://") ? part : `https://${part}`)
+    .find((part) => URL.canParse(part));
+  return validCandidate ? new URL(validCandidate).origin : undefined;
 }
 
 const vercelOrigin = normalizeOrigin(process.env.VERCEL_URL)

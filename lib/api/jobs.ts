@@ -1,22 +1,16 @@
-import type { JobFormData, StoredJob } from "@/lib/types/jobs";
+import type { StoredJob } from "../actions/jobs";
 
  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
 
+const ensureOk = (response: Response, message: string) =>
+    response.ok ? response : (() => { throw new Error(message) })();
 
 
-export const listJobs = async (filters: Partial<JobFormData> = {}): Promise<StoredJob[]> => {
-    const searchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(filters)) {
-        if (value !== undefined && value !== null && value !== '') {
-            searchParams.set(key, String(value));
-        }
-    }
 
-    const queryString = searchParams.toString();
-    const response = await fetch(`${baseUrl}/jobs${queryString ? `?${queryString}` : ''}`);
-    if (!response.ok) {
-        throw new Error("Could not load job posts");
-    }
+export const listJobs = async (query = ''): Promise<StoredJob[]> => {
+    const queryString = query ? `?${query}` : '';
+    const response = await fetch(`${baseUrl}/jobs${queryString}`, { cache: 'no-store' });
+    ensureOk(response, "Could not load job posts");
     const jobs = await response.json();
     return jobs;
 }
@@ -27,9 +21,7 @@ export const getJobById = async (id: string): Promise<StoredJob> => {
         headers: { 'Content-Type': 'application/json' },
         cache: 'no-store',
     });
-    if (!response.ok) {
-        throw new Error(response.status === 404 ? 'Job post not found.' : 'Could not load job details.');
-    }
+    ensureOk(response, response.status === 404 ? 'Job post not found.' : 'Could not load job details.');
     return response.json();
 }
 
@@ -40,8 +32,7 @@ export const updateJob = async (id: string, jobData: Omit<StoredJob, "_id">): Pr
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(jobData),
     });
-    if (!response.ok) {
-        const details = await response.text().catch(() => "");
-        throw new Error(details || `Could not update job post (HTTP ${response.status}).`);
-    }
+    response.ok || await response.text()
+        .catch(() => "")
+        .then((details) => { throw new Error(details || `Could not update job post (HTTP ${response.status}).`); });
 }

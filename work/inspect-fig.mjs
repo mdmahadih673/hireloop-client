@@ -5,6 +5,6 @@ console.log('HEADER', doc.header, 'NODES', doc.nodes.length);
 for (const node of doc.nodes) {
   const name = node.name || '';
   const children = doc.childrenMap.get(nodeId(node)) || [];
-  if (/job|recruit|dashboard|manage/i.test(name)) console.log(node.type, JSON.stringify(name), node.size, 'children=', children.length, nodeId(node));
+  /job|recruit|dashboard|manage/i.test(name) && console.log(node.type, JSON.stringify(name), node.size, 'children=', children.length, nodeId(node));
 }
 

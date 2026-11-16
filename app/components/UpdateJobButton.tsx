@@ -32,19 +32,19 @@ export function UpdateJobButton({ job }: { job: StoredJob }) {
     const values = Object.fromEntries(formData.entries()) as unknown as JobFormData
     values.isRemote = formData.has("isRemote")
 
-    try {
-      await updateJob(job._id, values)
-      setIsOpen(false)
-      toast.add({
-        title: "Job updated",
-        description: `“${values.title}” has been updated.`,
+    return updateJob(job._id, values)
+      .then(() => {
+        setIsOpen(false)
+        toast.add({
+          title: "Job updated",
+          description: `“${values.title}” has been updated.`,
+        })
+        router.refresh()
       })
-      router.refresh()
-    } catch (updateError) {
-      setError(updateError instanceof Error ? updateError.message : "Could not update job post.")
-    } finally {
-      setIsSaving(false)
-    }
+      .catch((updateError: unknown) => {
+        setError(updateError instanceof Error ? updateError.message : "Could not update job post.")
+      })
+      .finally(() => setIsSaving(false))
   }
 
 

@@ -4,20 +4,13 @@ import type { auth } from "@/lib/auth"
 
 function normalizeAuthUrl(value: string | undefined): string | undefined {
   const candidate = value?.trim()
-  if (!candidate) return undefined
-
-  for (const part of candidate.split("||")) {
-    const trimmed = part.trim()
-    if (!trimmed) continue
-
-    try {
-      return new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`).origin
-    } catch {
-      // Ignore malformed fragments and continue to the next possible value.
-    }
-  }
-
-  return undefined
+  const validCandidate = candidate
+    ?.split("||")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => part.includes("://") ? part : `https://${part}`)
+    .find((part) => URL.canParse(part))
+  return validCandidate ? new URL(validCandidate).origin : undefined
 }
 
 export const authClient = createAuthClient({

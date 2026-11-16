@@ -46,11 +46,7 @@ const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 
 function useSidebar() {
   const context = React.useContext(SidebarContext)
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.")
-  }
-
-  return context
+  return context ?? (() => { throw new Error("useSidebar must be used within a SidebarProvider.") })()
 }
 
 function SidebarProvider({
@@ -76,11 +72,7 @@ function SidebarProvider({
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value
-      if (setOpenProp) {
-        setOpenProp(openState)
-      } else {
-        _setOpen(openState)
-      }
+      setOpenProp ? setOpenProp(openState) : _setOpen(openState)
 
       // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
@@ -96,13 +88,10 @@ function SidebarProvider({
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (
+      (
         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
         (event.metaKey || event.ctrlKey)
-      ) {
-        event.preventDefault()
-        toggleSidebar()
-      }
+      ) && (event.preventDefault(), toggleSidebar())
     }
 
     window.addEventListener("keydown", handleKeyDown)
@@ -164,8 +153,7 @@ function Sidebar({
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
-  if (collapsible === "none") {
-    return (
+  return collapsible === "none" ? (
       <div
         data-slot="sidebar"
         className={cn(
@@ -176,11 +164,7 @@ function Sidebar({
       >
         {children}
       </div>
-    )
-  }
-
-  if (isMobile) {
-    return (
+    ) : isMobile ? (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetContent
           dir={dir}
@@ -202,10 +186,7 @@ function Sidebar({
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
       </Sheet>
-    )
-  }
-
-  return (
+    ) : (
     <div
       className="group peer hidden text-sidebar-foreground md:block"
       data-state={state}
@@ -527,24 +508,16 @@ function SidebarMenuButton({
     },
   })
 
-  if (!tooltip) {
-    return comp
-  }
+  const tooltipProps = typeof tooltip === "string" ? { children: tooltip } : tooltip
 
-  if (typeof tooltip === "string") {
-    tooltip = {
-      children: tooltip,
-    }
-  }
-
-  return (
+  return !tooltip ? comp : (
     <Tooltip>
       {comp}
       <TooltipContent
         side="right"
         align="center"
         hidden={state !== "collapsed" || isMobile}
-        {...tooltip}
+        {...tooltipProps}
       />
     </Tooltip>
   )

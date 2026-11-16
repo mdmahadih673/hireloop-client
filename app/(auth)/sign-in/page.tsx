@@ -6,38 +6,31 @@ import { useState, type FormEvent } from "react"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Sparkles } from "lucide-react"
 import { signIn } from "@/lib/auth-client"
+import { useSearchParams } from "next/navigation"
 
 export default function SignInPage() {
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") ?? "/"
   const [showPassword, setShowPassword] = useState(false)
   const [signInError, setSignInError] = useState("")
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
+
     const formData = new FormData(event.currentTarget)
-    try {
-      const { data, error } = await signIn.email({
+    return signIn.email({
         email: formData.get("email") as string,
         password: formData.get("password") as string,
-        callbackURL: "/",
+        callbackURL: redirect,
       })
-      if (error) {
-        console.error("Sign-in failed", error)
-        setSignInError(error.message ?? "Sign-in failed.")
-        return
-      }
-
-      console.log("Sign-in successful", data)
-      window.location.assign("/")
-
-    } catch (error) {
-      console.error("Sign-in request failed", error)
-      setSignInError(
-        error instanceof Error
-          ? error.message
-          : "Sign-in could not be completed. Please try again.",
-      )
-    }
+      .then(({ data, error }) => error
+        ? (console.error("Sign-in failed", error), setSignInError(error.message ?? "Sign-in failed."))
+        : (console.log("Sign-in successful", data), window.location.assign(redirect)))
+      .catch((error: unknown) => {
+        console.error("Sign-in request failed", error)
+        setSignInError(error instanceof Error ? error.message : "Sign-in could not be completed. Please try again.")
+      })
   }
   return (
     <main className="relative min-h-svh overflow-hidden bg-[#101014] text-white">
@@ -196,7 +189,7 @@ export default function SignInPage() {
                 </label>
 
                 <button
-                  className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#705dff] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(102,83,255,0.22)] transition hover:bg-[#806fff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a99dff]"
+                  className="group cursor-pointer flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#705dff] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(102,83,255,0.22)] transition hover:bg-[#806fff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a99dff]"
                   type="submit"
                 >
                   Sign in

@@ -72,22 +72,22 @@ export default function NewJobPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (isPublishing) return
+    return isPublishing ? undefined : publishJob(event)
+  }
 
+  async function publishJob(event: React.FormEvent<HTMLFormElement>) {
     const formData = new FormData(event.currentTarget)
     const jobData = Object.fromEntries(formData.entries()) as unknown as JobFormData
     jobData.isRemote = formData.has("isRemote")
 
     setIsPublishing(true)
     setPublishError("")
-    try {
-      await createJob(jobData)
-      router.push("/Dashboard/Recruiter/jobs")
-    } catch (error) {
-      setPublishError(error instanceof Error ? error.message : "Could not publish job. Please try again.")
-    } finally {
-      setIsPublishing(false)
-    }
+    return createJob(jobData)
+      .then(() => router.push("/Dashboard/Recruiter/jobs"))
+      .catch((error: unknown) => {
+        setPublishError(error instanceof Error ? error.message : "Could not publish job. Please try again.")
+      })
+      .finally(() => setIsPublishing(false))
 
   }
 

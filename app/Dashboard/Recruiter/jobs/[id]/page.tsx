@@ -14,10 +14,12 @@ function Detail({ label, value }: { label: string; value?: string | boolean }) {
 }
 
 function formatDeadline(value?: string) {
-  if (!value) return "Not specified"
   const date = new Date(`${value}T00:00:00`)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(date)
+  return !value
+    ? "Not specified"
+    : Number.isNaN(date.getTime())
+      ? value
+      : new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(date)
 }
 
 function JobDetails({ job }: { job: StoredJob }) {
@@ -64,14 +66,12 @@ function JobDetails({ job }: { job: StoredJob }) {
 
 export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  let job: StoredJob | null = null
-  let error = ""
-
-  try {
-    job = await getJobById(id)
-  } catch (loadError) {
-    error = loadError instanceof Error ? loadError.message : "Could not load job details."
-  }
+  const result = await getJobById(id)
+    .then((job) => ({ job, error: "" }))
+    .catch((loadError: unknown) => ({
+      job: null,
+      error: loadError instanceof Error ? loadError.message : "Could not load job details.",
+    }))
 
   return (
     <main className="min-h-svh bg-[#111111] px-4 py-8 text-white sm:px-6 lg:px-8">
@@ -79,13 +79,13 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
         <Link className="inline-flex items-center gap-2 text-sm text-white/55 transition hover:text-white" href="/Dashboard/Recruiter/jobs">
           <ArrowLeft className="size-4" /> Back to Manage Jobs
         </Link>
-        {job ? (
+        {result.job ? (
           <div className="mt-7 rounded-2xl border border-white/[0.08] bg-[#151515] p-5 sm:p-8">
-            <JobDetails job={job} />
+            <JobDetails job={result.job} />
           </div>
         ) : (
           <section className="mt-7 rounded-2xl border border-white/[0.08] bg-[#151515] p-8">
-            <p className="text-sm text-red-200">{error}</p>
+            <p className="text-sm text-red-200">{result.error}</p>
           </section>
         )}
       </div>

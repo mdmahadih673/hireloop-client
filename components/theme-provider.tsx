@@ -22,11 +22,7 @@ function ThemeProvider({
 }
 
 function isTypingTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) {
-    return false
-  }
-
-  return (
+  return target instanceof HTMLElement && (
     target.isContentEditable ||
     target.tagName === "INPUT" ||
     target.tagName === "TEXTAREA" ||
@@ -39,23 +35,17 @@ function ThemeHotkey() {
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.defaultPrevented || event.repeat) {
-        return
-      }
+      const canToggle =
+        !event.defaultPrevented &&
+        !event.repeat &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        typeof event.key === "string" &&
+        event.key.toLowerCase() === "d" &&
+        !isTypingTarget(event.target)
 
-      if (event.metaKey || event.ctrlKey || event.altKey) {
-        return
-      }
-
-      if (typeof event.key !== "string" || event.key.toLowerCase() !== "d") {
-        return
-      }
-
-      if (isTypingTarget(event.target)) {
-        return
-      }
-
-      setTheme(resolvedTheme === "dark" ? "light" : "dark")
+      canToggle && setTheme(resolvedTheme === "dark" ? "light" : "dark")
     }
 
     window.addEventListener("keydown", onKeyDown)

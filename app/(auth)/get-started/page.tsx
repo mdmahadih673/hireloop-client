@@ -17,30 +17,20 @@ export default function GetStartedPage() {
 
     const formData = new FormData(event.currentTarget)
 
-    try {
-      const { data, error } = await signUp.email({
+    return signUp.email({
         name: String(formData.get("fullName") ?? ""),
         email: String(formData.get("email") ?? ""),
         password: String(formData.get("password") ?? ""),
         role: String(formData.get("role") ?? "seeker"),
         callbackURL: "/",
       })
-
-      if (error) {
-        console.error("Registration failed", error)
-        setRegistrationError(error.message ?? "Registration failed.")
-        return
-      }
-
-      console.log("Registration successful", data)
-    } catch (error) {
-      console.error("Registration request failed", error)
-      setRegistrationError(
-        error instanceof Error
-          ? error.message
-          : "Registration could not be completed. Please try again.",
-      )
-    }
+      .then(({ data, error }) => error
+        ? (console.error("Registration failed", error), setRegistrationError(error.message ?? "Registration failed."))
+        : console.log("Registration successful", data))
+      .catch((error: unknown) => {
+        console.error("Registration request failed", error)
+        setRegistrationError(error instanceof Error ? error.message : "Registration could not be completed. Please try again.")
+      })
   }
   return (
     <main className="relative min-h-svh overflow-hidden bg-[#101014] text-white">

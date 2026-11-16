@@ -23,7 +23,7 @@ function NavigationLabels({ mobile = false }: { mobile?: boolean }) {
           : "flex items-center gap-5 text-xs text-white/90 lg:gap-7"
       }
     >
-      <Link className={linkClassName} href="/jobs">
+      <Link className={linkClassName} href="/browse-jobs">
         Browse Jobs
       </Link>
       <Link className={linkClassName} href="/companies">
@@ -68,7 +68,7 @@ function AccountMenu() {
       ? "/Dashboard/Recruiter"
       : "/Dashboard/Seeker"
 
-      
+
   const initials = user?.name
     ?.trim()
     .split(/\s+/)
@@ -76,20 +76,14 @@ function AccountMenu() {
     .map((part) => part[0]?.toUpperCase())
     .join("") || "U"
 
-  if (isPending) {
-    return <span aria-label="Loading account" className="size-9 animate-pulse rounded-full bg-white/10" />
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center gap-5 lg:gap-7">
-        <SignInLink />
-        <GetStartedLabel />
-      </div>
-    )
-  }
-
-  return (
+  return isPending ? (
+    <span aria-label="Loading account" className="size-9 animate-pulse rounded-full bg-white/10" />
+  ) : !user ? (
+    <div className="flex items-center gap-5 lg:gap-7">
+      <SignInLink />
+      <GetStartedLabel />
+    </div>
+  ) : (
     <details className="group relative">
       <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1 pl-1 pr-3 text-left transition hover:bg-white/[0.08] [&::-webkit-details-marker]:hidden">
         {user.image ? (
