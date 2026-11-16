@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/toast"
-import { applyToAJob, getApplicationsCount } from "@/lib/actions/jobs"
+import { applyToAJob, getApplicationsByUser, getApplicationsCount } from "@/lib/actions/jobs"
 import { useSession } from "@/lib/auth-client"
 import type { StoredJob } from "@/lib/types/jobs"
 
@@ -11,10 +11,27 @@ export default function ApplyNow({ job }: { job: StoredJob }) {
   const router = useRouter()
   const { data: session, isPending } = useSession()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [alreadyApplied, setAlreadyApplied] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    async function checkApplied() {
+      const user = session?.user
+      if (isPending || !user || user.role?.toLowerCase() !== "seeker") return
+      try {
+        const applications = await getApplicationsByUser(user.id)
+        if (!cancelled) setAlreadyApplied(applications.some((a) => a.jobId === job._id))
+      } catch {
+        if (!cancelled) setAlreadyApplied(false)
+      }
+    }
+    checkApplied()
+    return () => { cancelled = true }
+  }, [isPending, session, job._id])
 
   async function handleApply() {
     const user = session?.user
-    if (isPending || isSubmitting) return
+    if (isPending || isSubmitting || alreadyApplied) return
 
     if (!user) {
       router.push(`/sign-in?redirect=${encodeURIComponent(`/browse-jobs/${job._id}`)}`)
@@ -30,7 +47,7 @@ export default function ApplyNow({ job }: { job: StoredJob }) {
       return
     }
 
-    const countResult = await getApplicationsCount(`applicantId = ${user.id}`)
+    const countResult = await getApplicationsCount(`userId=${user.id}`)
 
     if (countResult.count >= 5) {
       router.push(`/payment`)
@@ -54,12 +71,14 @@ export default function ApplyNow({ job }: { job: StoredJob }) {
 
     if (result?.error) {
       toast.add({ title: "Already applied", description: result.error, type: "warning" })
+      setAlreadyApplied(true)
     } else {
       toast.add({
         title: "Application submitted",
         description: `You applied to ${job.title} at ${job.companyName}.`,
         type: "success",
       })
+      setAlreadyApplied(true)
       router.push("/browse-jobs")
     }
 
@@ -68,12 +87,12 @@ export default function ApplyNow({ job }: { job: StoredJob }) {
 
   return (
     <button
-      className="rounded-lg cursor-pointer bg-white px-4 py-2.5 text-xs font-semibold text-[#09090b] transition hover:bg-white/90 disabled:cursor-wait disabled:opacity-60"
-      disabled={isPending || isSubmitting}
+      className="rounded-lg cursor-pointer bg-white px-4 py-2.5 text-xs font-semibold text-[#09090b] transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+      disabled={isPending || isSubmitting || alreadyApplied}
       onClick={handleApply}
       type="button"
     >
-      {isPending ? "Loading…" : isSubmitting ? "Applying…" : "Apply Now"}
+      {alreadyApplied ? "Applied" : isPending ? "Loading…" : isSubmitting ? "Applying…" : "Apply Now"}
     </button>
   )
 }

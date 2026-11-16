@@ -58,7 +58,8 @@ export const getApplicationsByUser = async (query= ''): Promise<JobApplication[]
 }
 
 export const getApplicationsCount = async (query= ''): Promise<{count : number}> => {
-    const response = await fetch(`${BASE_URL}/applications/count${query}`, {
+    const search = query ? `?${query}` : '';
+    const response = await fetch(`${BASE_URL}/applications/count${search}`, {
         cache: 'no-store',
     });
     if (!response.ok) {
