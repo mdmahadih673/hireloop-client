@@ -19,53 +19,49 @@ export default function ApplyNow({ job }: { job: StoredJob }) {
     if (!user) {
       router.push(`/sign-in?redirect=${encodeURIComponent(`/browse-jobs/${job._id}`)}`)
       return
+    }
 
-
-    } else if (user.role === "seeker") {
+    if (user.role?.toLowerCase() !== "seeker") {
       toast.add({
         title: "Not allowed",
         description: "Only job seekers can apply to this role.",
         type: "warning",
       })
-      const countResult = await getApplicationsCount(`applicantId = ${user.id}`)
-
-      if (countResult.count >= 5) {
-        router.push(`/payment`)
-        return
-      } else {
-
-        setIsSubmitting(true)
-        const result = await applyToAJob({
-          data: {
-            jobId: job._id,
-            userId: user.id,
-            applicantName: user.name || "Hireloop member",
-            applicantEmail: user.email,
-            jobTitle: job.title,
-            companyName: job.companyName,
-            jobType: job.jobType,
-            location: job.location,
-            isRemote: job.isRemote,
-          },
-        })
-        if (result?.error) {
-          toast.add({ title: "Already applied", description: result.error, type: "warning" })
-        } else {
-          toast.add({
-            title: "Application submitted",
-            description: `You applied to ${job.title} at ${job.companyName}.`,
-            type: "success",
-          })
-          router.push("/browse-jobs")
-        }
-      }
       return
     }
 
+    const countResult = await getApplicationsCount(`applicantId = ${user.id}`)
 
+    if (countResult.count >= 5) {
+      router.push(`/payment`)
+      return
+    }
 
+    setIsSubmitting(true)
+    const result = await applyToAJob({
+      data: {
+        jobId: job._id,
+        userId: user.id,
+        applicantName: user.name || "Hireloop member",
+        applicantEmail: user.email,
+        jobTitle: job.title,
+        companyName: job.companyName,
+        jobType: job.jobType,
+        location: job.location,
+        isRemote: job.isRemote,
+      },
+    })
 
-
+    if (result?.error) {
+      toast.add({ title: "Already applied", description: result.error, type: "warning" })
+    } else {
+      toast.add({
+        title: "Application submitted",
+        description: `You applied to ${job.title} at ${job.companyName}.`,
+        type: "success",
+      })
+      router.push("/browse-jobs")
+    }
 
     setIsSubmitting(false)
   }
