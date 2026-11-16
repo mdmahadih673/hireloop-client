@@ -1,0 +1,40 @@
+import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import { stripe } from '@/lib/stripe';
+import { getSesson } from '@/lib/core/server';
+
+
+export async function POST() {
+
+    const userSesson = await getSesson()
+
+
+    try {
+        const headersList = await headers()
+        const origin = headersList.get('origin')
+
+        // Create Checkout Sessions from body params.
+        const session = await stripe.checkout.sessions.create({
+            line_items: [
+                {
+                    // Provide the exact Price ID (for example, price_1234) of the product you want to sell
+                    price: 'price_1UcTsZRz3VNA8JJCgRDoIIJB',
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            customer_email : userSesson?.user.email,
+            success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${origin}/payment?canceled=true`,
+            // Provide a name (for example, hosted_web_0001) to label this Checkout integration and measure its conversion independently
+            integration_identifier: 'hire_loop_web_001',
+        });
+        return NextResponse.redirect(session.url as string, 303)
+    } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err))
+        return NextResponse.json(
+            { error: error.message },
+            { status: 500 }
+        )
+    }
+}

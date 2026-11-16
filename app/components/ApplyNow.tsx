@@ -50,7 +50,7 @@ export default function ApplyNow({ job }: { job: StoredJob }) {
     const countResult = await getApplicationsCount(`userId=${user.id}`)
 
     if (countResult.count >= 5) {
-      router.push(`/payment`)
+      router.push(`/payment?amount=20`)
       return
     }
 
