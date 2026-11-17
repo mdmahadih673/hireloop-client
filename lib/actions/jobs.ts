@@ -10,6 +10,14 @@ export interface JobData {
     [key: string]: unknown;
 }
 
+async function parseJsonOrThrow(response: Response, fallbackMessage: string) {
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+        throw new Error(`${fallbackMessage} (HTTP ${response.status}).`);
+    }
+    return response.json();
+}
+
 export const createJob = async (jobData: JobFormData) => {
     const response = await fetch(`${BASE_URL}/jobs`, {
         method: 'POST',
@@ -33,7 +41,7 @@ export const deleteJob = async (jobId: string) => {
     const response = await fetch(`${BASE_URL}/jobs/${jobId}`, {
         method: 'DELETE',
     });
-    return response.json();
+    return parseJsonOrThrow(response, "Could not delete the job post.");
 }
 
 export async function applyToAJob({data}:{data:CreateJobApplication}) {
@@ -44,7 +52,7 @@ export async function applyToAJob({data}:{data:CreateJobApplication}) {
         },
         body: JSON.stringify(data),
     })
-    return res.json()
+    return parseJsonOrThrow(res, "Could not submit your application.");
 }
 
 export const getApplicationsByUser = async (query= ''): Promise<JobApplication[]> => {
@@ -66,4 +74,17 @@ export const getApplicationsCount = async (query= ''): Promise<{count : number}>
         throw new Error("Could not load your applications.");
     }
     return response.json();
+}
+
+// payment api
+
+export const checkoutVerify=async (sessionId : string)=>{
+    const res = await fetch(`${BASE_URL}/payment/checkout-verify`,{
+        method:'POST',
+        headers:{
+           'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ sessionId })
+    })
+    return parseJsonOrThrow(res, "Could not verify your payment.");
 }
