@@ -88,3 +88,9 @@ export const checkoutVerify=async (sessionId : string)=>{
     })
     return parseJsonOrThrow(res, "Could not verify your payment.");
 }
+
+// getPremimunUserById
+export const getPremimunUserById = async(userId : string)=>{
+    const res = await fetch(`${BASE_URL}/users/${userId}/premimun`)
+    return res.json()
+}

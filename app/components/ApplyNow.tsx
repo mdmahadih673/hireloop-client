@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/toast"
-import { applyToAJob, getApplicationsByUser, getApplicationsCount } from "@/lib/actions/jobs"
+import { applyToAJob, getApplicationsByUser, getApplicationsCount, getPremimunUserById } from "@/lib/actions/jobs"
 import { useSession } from "@/lib/auth-client"
 import type { StoredJob } from "@/lib/types/jobs"
 
@@ -47,11 +47,14 @@ export default function ApplyNow({ job }: { job: StoredJob }) {
       return
     }
 
+    const premimunResult = await getPremimunUserById(user.id)
+    console.log(premimunResult)
+
     const countResult = await getApplicationsCount(`userId=${user.id}`)
 
-    if (countResult.count >= 5) {
-      router.push(`/payment?amount=20`)
-      return
+    if (!premimunResult.premium && countResult.count >= 5) {
+      router.push("/payment?amount=20")
+      return  
     }
 
     setIsSubmitting(true)
