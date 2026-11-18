@@ -5,7 +5,7 @@ import { DashboardSidebar } from "@/app/components/DashboardSidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <SidebarProvider>
+        <SidebarProvider className="dark min-h-svh bg-[#111111] text-white">
             <DashboardSidebar />
             <main className="min-w-0 flex-1 overflow-x-hidden">
                 <SidebarTrigger />

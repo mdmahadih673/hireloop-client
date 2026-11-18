@@ -1,0 +1,22 @@
+import Link from "next/link"
+import { PremiumPlans } from "@/app/components/PremiumPlans"
+
+export default async function RecruiterPremiumPage({ searchParams }: { searchParams: Promise<{ canceled?: string }> }) {
+  const { canceled } = await searchParams
+
+  return (
+    <main className="min-h-svh bg-[#09090b] px-4 py-12 text-white sm:px-6">
+      <div className="mx-auto max-w-6xl">
+        <Link className="text-sm text-white/55 hover:text-white" href="/Dashboard/Recruiter/jobs">← Back to job posts</Link>
+        <header className="mx-auto mb-10 mt-12 max-w-2xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300">Hireloop for recruiters</p>
+          <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">Choose a hiring plan</h1>
+          <p className="mt-3 text-sm leading-6 text-white/55">Your free account includes 2 job posts. Choose Premium to publish more roles.</p>
+          {canceled && <p className="mt-4 text-sm text-amber-300">Checkout was canceled. You have not been charged.</p>}
+        </header>
+        <PremiumPlans role="recruiter" />
+        <p className="mt-6 text-center text-xs text-white/40">One payment for the selected access period. No automatic renewal.</p>
+      </div>
+    </main>
+  )
+}

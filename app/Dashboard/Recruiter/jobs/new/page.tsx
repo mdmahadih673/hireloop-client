@@ -128,7 +128,7 @@ export default function NewJobPage() {
         getPremimunUserById(user.id),
       ])
       if (!premiumResult?.premium && count >= 2) {
-        router.push("/payment?for=recruiter&returnTo=%2FDashboard%2FRecruiter%2Fjobs%2Fnew")
+        router.push("/Dashboard/Recruiter/Premium?returnTo=%2FDashboard%2FRecruiter%2Fjobs%2Fnew")
         return
       }
       await createJob({ ...form, recruiterId: user.id })

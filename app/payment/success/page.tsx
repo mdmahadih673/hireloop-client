@@ -2,7 +2,63 @@ import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { checkoutVerify } from "@/lib/actions/jobs"
+import { getSesson } from "@/lib/core/server"
 import { stripe } from "@/lib/stripe"
+
+async function getPaymentReferences(session: Awaited<ReturnType<typeof stripe.checkout.sessions.retrieve>>) {
+  const sessionPaymentIntent = session.payment_intent
+  let paymentIntentId = typeof sessionPaymentIntent === "string"
+    ? sessionPaymentIntent
+    : sessionPaymentIntent?.id ?? null
+  let transactionId: string | null = null
+  let invoiceId: string | null = null
+
+  if (sessionPaymentIntent && typeof sessionPaymentIntent !== "string") {
+    const latestCharge = sessionPaymentIntent.latest_charge
+    transactionId = typeof latestCharge === "string" ? latestCharge : latestCharge?.id ?? null
+  } else if (typeof sessionPaymentIntent === "string") {
+    const paymentIntent = await stripe.paymentIntents.retrieve(sessionPaymentIntent, { expand: ["latest_charge"] })
+    const latestCharge = paymentIntent.latest_charge
+    transactionId = typeof latestCharge === "string" ? latestCharge : latestCharge?.id ?? null
+  }
+
+  const subscriptionId = typeof session.subscription === "string"
+    ? session.subscription
+    : session.subscription?.id
+
+  if (!transactionId && subscriptionId) {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ["latest_invoice"],
+    })
+    const invoice = subscription.latest_invoice
+    invoiceId = typeof invoice === "string" ? invoice : invoice?.id ?? null
+
+    if (invoiceId) {
+      const invoicePayments = await stripe.invoicePayments.list({
+        invoice: invoiceId,
+        status: "paid",
+        expand: ["data.payment.payment_intent.latest_charge", "data.payment.charge"],
+      })
+      const payment = invoicePayments.data[0]?.payment
+      const paymentIntent = payment?.payment_intent
+      const charge = payment?.charge
+      if (paymentIntent) {
+        paymentIntentId = typeof paymentIntent === "string" ? paymentIntent : paymentIntent.id
+        if (typeof paymentIntent !== "string") {
+          const latestCharge = paymentIntent.latest_charge
+          transactionId = typeof latestCharge === "string" ? latestCharge : latestCharge?.id ?? null
+        } else {
+          const expandedIntent = await stripe.paymentIntents.retrieve(paymentIntent, { expand: ["latest_charge"] })
+          const latestCharge = expandedIntent.latest_charge
+          transactionId = typeof latestCharge === "string" ? latestCharge : latestCharge?.id ?? null
+        }
+      }
+      if (!transactionId && charge) transactionId = typeof charge === "string" ? charge : charge.id
+    }
+  }
+
+  return { transactionId: transactionId ?? paymentIntentId, invoiceId }
+}
 
 export default async function PaymentSuccessfulPage({
   searchParams,
@@ -17,8 +73,11 @@ export default async function PaymentSuccessfulPage({
     throw new Error("Please provide a valid session_id (`cs_test_...`).")
   }
 
+  const userSession = await getSesson()
+  if (!userSession?.user) redirect("/sign-in")
+
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
-    expand: ["line_items", "payment_intent"],
+    expand: ["line_items", "payment_intent.latest_charge"],
   })
 
   if (session.status === "open") {
@@ -29,12 +88,13 @@ export default async function PaymentSuccessfulPage({
     return redirect("/payment")
   }
 
+  if (session.metadata?.role !== "seeker" || session.metadata?.userId !== userSession.user.id) {
+    redirect(session.metadata?.role === "recruiter" ? "/Dashboard/Recruiter/Premium" : "/payment")
+  }
+
   await checkoutVerify(sessionId)
 
-  const transactionId =
-    typeof session.payment_intent === "string"
-      ? session.payment_intent
-      : session.payment_intent?.id
+  const { transactionId, invoiceId } = await getPaymentReferences(session)
   const customerEmail =
     session.customer_details?.email ?? session.customer_email ?? null
   const productName =
@@ -133,9 +193,15 @@ export default async function PaymentSuccessfulPage({
                 <code className="mt-2 block font-mono text-sm break-all text-white/85">
                   {transactionId}
                 </code>
+              ) : invoiceId ? (
+                <div>
+                  <p className="mt-2 text-xs text-white/55">No payment intent was attached to this invoice.</p>
+                  <p className="mt-3 text-[10px] font-medium tracking-wide text-white/40 uppercase">Stripe invoice reference</p>
+                  <code className="mt-1 block font-mono text-sm break-all text-white/85">{invoiceId}</code>
+                </div>
               ) : (
                 <p className="mt-2 text-sm text-amber-200">
-                  Stripe has not provided a transaction ID for this payment.
+                  The payment was confirmed, but Stripe did not return a payment reference. Please contact support with checkout ID {sessionId}.
                 </p>
               )}
             </div>

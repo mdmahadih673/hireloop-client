@@ -20,6 +20,8 @@ import { UpdateJobButton } from "@/app/components/UpdateJobButton"
 import { DeleteJobButton } from "@/app/components/DeleteJobButton"
 import { ViewJobButton } from "@/app/components/ViewJobButton"
 import { JobInfo, StatusBadge } from "@/components/jobs/JobListingMeta"
+import { getSesson } from "@/lib/core/server"
+import { redirect } from "next/navigation"
 
 function getSalary(job: StoredJob) {
   const range = [job.minSalary, job.maxSalary].filter(Boolean).join(" – ")
@@ -76,7 +78,11 @@ function categoryStyle(category: string = "") {
 
 export default async function JobsPage() {
   const now = getNow()
-  const result = await listJobs()
+  const session = await getSesson()
+  if (!session?.user) redirect("/sign-in")
+  if (session.user.role?.toLowerCase() !== "recruiter") redirect("/")
+
+  const result = await listJobs(`recruiterId=${encodeURIComponent(session.user.id)}`)
     .then((jobs) => ({ jobs, error: null as string | null }))
     .catch((loadError: unknown) => ({
       jobs: [] as StoredJob[],
