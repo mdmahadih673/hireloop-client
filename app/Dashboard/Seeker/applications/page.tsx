@@ -11,6 +11,8 @@ const statusStyles: Record<ApplicationStatus, string> = {
   review: "border-amber-500/30 bg-amber-500/10 text-amber-400",
   shortlisted: "border-blue-500/30 bg-blue-500/10 text-blue-400",
   interview: "border-violet-500/30 bg-violet-500/10 text-violet-400",
+  waiting_list: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+  approved: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
   rejected: "border-red-500/30 bg-red-500/10 text-red-400",
   offered: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
 }
@@ -19,7 +21,9 @@ const statusLabels: Record<ApplicationStatus, string> = {
   applied: "Applied",
   review: "Review",
   shortlisted: "Shortlisted",
-  interview: "Interview",
+  interview: "Interview call",
+  waiting_list: "Waiting list",
+  approved: "Approved",
   rejected: "Rejected",
   offered: "Offered",
 }

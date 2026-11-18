@@ -22,6 +22,7 @@ import { ViewJobButton } from "@/app/components/ViewJobButton"
 import { JobInfo, StatusBadge } from "@/components/jobs/JobListingMeta"
 import { getSesson } from "@/lib/core/server"
 import { redirect } from "next/navigation"
+import { getApplicationCountsByJobIds } from "@/lib/actions/jobs"
 
 function getSalary(job: StoredJob) {
   const range = [job.minSalary, job.maxSalary].filter(Boolean).join(" – ")
@@ -83,12 +84,13 @@ export default async function JobsPage() {
   if (session.user.role?.toLowerCase() !== "recruiter") redirect("/")
 
   const result = await listJobs(`recruiterId=${encodeURIComponent(session.user.id)}`)
-    .then((jobs) => ({ jobs, error: null as string | null }))
+    .then(async (jobs) => ({ jobs, applicantCounts: await getApplicationCountsByJobIds(jobs.map((job) => job._id)), error: null as string | null }))
     .catch((loadError: unknown) => ({
       jobs: [] as StoredJob[],
+      applicantCounts: {} as Record<string, number>,
       error: loadError instanceof Error ? loadError.message : "Could not load job posts",
     }))
-  const { jobs, error } = result
+  const { jobs, applicantCounts, error } = result
 
   return (
     <div className="min-h-svh bg-[#111111] px-4 py-6 text-white sm:px-6 lg:py-3 lg:pl-8 lg:pr-4">
@@ -209,7 +211,13 @@ export default async function JobsPage() {
                     <td className="px-3 py-3.5 sm:px-4"><span className="inline-flex rounded-full bg-white/[0.07] px-2.5 py-1 text-[10px] text-white/80">{job.jobType || "—"}</span></td>
                     <td className="px-3 py-3.5 text-white/90 sm:px-4">{getSalary(job)}</td>
                     <td className="px-3 py-3.5 sm:px-4">
-                      <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#c3c0ff]"><UsersRound className="size-3.5 text-[#bfb7ff]" />0 Candidates</span>
+                      <Link
+                        aria-label={`View ${applicantCounts[job._id] ?? 0} applicants for ${job.title}`}
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#c3c0ff] transition hover:text-white hover:underline"
+                        href={`/Dashboard/Recruiter/jobs/${encodeURIComponent(job._id)}/applicants`}
+                      >
+                        <UsersRound className="size-3.5 text-[#bfb7ff]" />{applicantCounts[job._id] ?? 0} Applicants
+                      </Link>
                     </td>
                     <td className="px-3 py-3 sm:px-4"><StatusBadge status={status} /></td>
                     <td className="px-3 py-3.5 sm:px-4"><span className="block whitespace-nowrap text-white/90">{formatDate(job.deadline)}</span><span className="mt-1 block text-[10px] text-white/35">{job.createdAt ? `Posted ${new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(-Math.max(0, Math.floor((now - new Date(job.createdAt).getTime()) / 86400000)), "day")}` : ""}</span></td>

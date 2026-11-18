@@ -97,8 +97,7 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="gap-2 border-t border-white/[0.07] p-3">
-        <Link className="flex h-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-[11px] font-semibold text-white/85 transition hover:bg-white/[0.1] hover:text-white" href="/profile">Post Resume</Link>
-        <button className="flex h-8 items-center gap-2 px-2 text-[11px] text-white/50 transition hover:text-white" onClick={() => signOut().then(() => window.location.assign("/"))} type="button">Logout</button>
+        <button className="flex h-9 w-full items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-[11px] font-semibold text-white/85 transition hover:bg-white/[0.1] hover:text-white" onClick={() => signOut().then(() => window.location.assign("/"))} type="button">Sign Out</button>
       </SidebarFooter>
     </Sidebar>
   )

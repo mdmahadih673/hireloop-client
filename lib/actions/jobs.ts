@@ -1,5 +1,5 @@
 import type { JobFormData } from "@/lib/types/jobs";
-import type { JobApplication } from "@/lib/types/applications";
+import type { ApplicationStatus, JobApplication } from "@/lib/types/applications";
 import { CreateJobApplication } from "../types/applications";
 
 export type { JobFormData, StoredJob } from "@/lib/types/jobs";
@@ -72,6 +72,38 @@ export const getApplicationsByUser = async (query= ''): Promise<JobApplication[]
         throw new Error("Could not load your applications.");
     }
     return response.json();
+}
+
+export const getApplicationsByJobId = async (jobId: string): Promise<JobApplication[]> => {
+    const response = await fetch(`${BASE_URL}/applications?jobId=${encodeURIComponent(jobId)}`, {
+        cache: 'no-store',
+    });
+    if (!response.ok) throw new Error("Could not load applicants for this job.");
+    return response.json();
+}
+
+export const updateApplicationStatus = async (applicationId: string, status: ApplicationStatus, recruiterId: string) => {
+    const response = await fetch(`${BASE_URL}/applications/${encodeURIComponent(applicationId)}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, recruiterId }),
+    });
+    if (!response.ok) {
+        const body = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(body?.error || "Could not update applicant status.");
+    }
+    return response.json() as Promise<{ success: boolean; status: ApplicationStatus }>;
+}
+
+export const getApplicationCountsByJobIds = async (jobIds: string[]): Promise<Record<string, number>> => {
+    if (jobIds.length === 0) return {};
+    const params = new URLSearchParams({ jobIds: jobIds.join(",") });
+    const response = await fetch(`${BASE_URL}/applications/counts?${params}`, {
+        cache: 'no-store',
+    });
+    if (!response.ok) throw new Error("Could not load applicant counts.");
+    const result = await response.json() as { counts: Record<string, number> };
+    return result.counts;
 }
 
 export const getApplicationsCount = async (query= ''): Promise<{count : number}> => {

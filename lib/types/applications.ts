@@ -3,6 +3,8 @@ export type ApplicationStatus =
   | "review"
   | "shortlisted"
   | "interview"
+  | "waiting_list"
+  | "approved"
   | "rejected"
   | "offered"
 
