@@ -3,6 +3,8 @@ export type JobFormData = {
   _id?: string
   title: string
   companyName: string
+  companyId?: string
+  recruiterId: string,
   category: string
   jobType: string
   location: string

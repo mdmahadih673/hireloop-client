@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { getOAuthState } from "better-auth/api";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
@@ -45,6 +46,18 @@ export const auth = betterAuth({
         required: true,
         defaultValue: "seeker",
         input: true,
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const role = (await getOAuthState())?.role;
+          if (role === "seeker" || role === "recruiter" || role === "admin") {
+            return { data: { ...user, role } };
+          }
+        },
       },
     },
   },

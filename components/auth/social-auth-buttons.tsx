@@ -1,12 +1,36 @@
+import { useState } from "react"
 import { signIn } from "@/lib/auth-client"
 
-export function SocialAuthButtons() {
+export type SocialAuthRole = "seeker" | "recruiter" | "admin"
 
+type SocialAuthButtonsProps = {
+  role?: SocialAuthRole
+  onRoleChange?: (role: SocialAuthRole) => void
+}
+
+function isSocialAuthRole(value: string): value is SocialAuthRole {
+  return value === "seeker" || value === "recruiter" || value === "admin"
+}
+
+export function SocialAuthButtons({ role, onRoleChange }: SocialAuthButtonsProps) {
+  const [localRole, setLocalRole] = useState<SocialAuthRole>("seeker")
+  const selectedRole = role ?? localRole
+
+  function handleRoleChange(value: string) {
+    if (!isSocialAuthRole(value)) return
+
+    if (onRoleChange) {
+      onRoleChange(value)
+    } else {
+      setLocalRole(value)
+    }
+  }
 
   async function handleProviderClick(provider: "google" | "github") {
     await signIn.social({
       provider,
       callbackURL: "/",
+      additionalData: { role: selectedRole },
     })
   }
 
@@ -15,9 +39,30 @@ export function SocialAuthButtons() {
 
   return (
     <div className="mt-7">
+      <div className="mb-5">
+        <label
+          className="mb-2 block text-sm font-medium text-white/80"
+          htmlFor="social-role"
+        >
+          I&apos;m here to
+        </label>
+        <select
+          className="h-12 w-full appearance-none rounded-xl border border-white/10 bg-[#18181d] px-4 text-sm text-white outline-none transition focus:border-[#8170ff] focus:ring-4 focus:ring-[#6653ff]/15"
+          id="social-role"
+          onChange={(event) => handleRoleChange(event.currentTarget.value)}
+          value={selectedRole}
+        >
+          <option value="seeker">Job seeker</option>
+          <option value="recruiter">Recruiter</option>
+          <option value="admin">Admin (request access)</option>
+        </select>
+        <p className="mt-2 text-xs leading-5 text-white/45">
+          This role applies to new accounts only. Existing accounts keep their
+          current role; admin access must be granted separately.
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
-
-
         <button
           className={buttonClassName}
           onClick={() => handleProviderClick("google")}
@@ -71,8 +116,6 @@ export function SocialAuthButtons() {
           </svg>
           GitHub
         </button>
-
-
       </div>
       <div className="my-6 flex items-center gap-4">
         <span aria-hidden="true" className="h-px flex-1 bg-white/10" />

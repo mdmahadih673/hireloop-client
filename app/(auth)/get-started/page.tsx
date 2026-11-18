@@ -4,12 +4,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { useState, type FormEvent } from "react"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
+import type { SocialAuthRole } from "@/components/auth/social-auth-buttons"
 import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react"
 import { signUp } from "@/lib/auth-client"
 
 export default function GetStartedPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [registrationError, setRegistrationError] = useState("")
+  const [role, setRole] = useState<SocialAuthRole>("seeker")
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -21,7 +23,7 @@ export default function GetStartedPage() {
         name: String(formData.get("fullName") ?? ""),
         email: String(formData.get("email") ?? ""),
         password: String(formData.get("password") ?? ""),
-        role: String(formData.get("role") ?? "seeker"),
+        role,
         callbackURL: "/",
       })
       .then(({ data, error }) => error
@@ -122,7 +124,7 @@ export default function GetStartedPage() {
                 A few details are all it takes to join Hireloop.
               </p>
 
-              <SocialAuthButtons />
+              <SocialAuthButtons onRoleChange={setRole} role={role} />
 
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
@@ -160,28 +162,6 @@ export default function GetStartedPage() {
                     suppressHydrationWarning
                     type="email"
                   />
-                </div>
-
-                <div>
-                  <label
-                    className="mb-2 block text-sm font-medium text-white/80"
-                    htmlFor="role"
-                  >
-                    I&apos;m here to
-                  </label>
-                  <select
-                    className="h-12 w-full appearance-none rounded-xl border border-white/10 bg-[#18181d] px-4 text-sm text-white outline-none transition focus:border-[#8170ff] focus:ring-4 focus:ring-[#6653ff]/15"
-                    defaultValue="seeker"
-                    id="role"
-                    name="role"
-                  >
-                    <option value="seeker">Job seeker</option>
-                    <option value="recruiter">Recruiter</option>
-                    <option value="admin">Admin (request access)</option>
-                  </select>
-                  <p className="mt-2 text-xs leading-5 text-white/45">
-                    Admin selection is saved as an access request. Admin privileges must be granted separately by an administrator.
-                  </p>
                 </div>
 
                 <div>

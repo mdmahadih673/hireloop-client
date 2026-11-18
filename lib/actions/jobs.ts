@@ -26,15 +26,24 @@ export const createJob = async (jobData: JobFormData) => {
         },
         body: JSON.stringify(jobData),
     });
-    await (response.ok || response.text().catch(() => "").then((details) => {
-        throw new Error(details || `Could not publish job (HTTP ${response.status}).`);
-    }));
+    if (!response.ok) {
+        const body = await response.json().catch(() => null) as { error?: string; message?: string } | null;
+        throw new Error(body?.error || body?.message || `Could not publish job (HTTP ${response.status}).`);
+    }
 
     const result: { acknowledged?: boolean } = await response.json();
     if (result.acknowledged === false) {
         throw new Error("The job was not saved. Please try again.");
     }
     return result;
+}
+
+export const getRecruiterJobCount = async (recruiterId: string): Promise<{ count: number }> => {
+    const response = await fetch(`${BASE_URL}/jobs/count?recruiterId=${encodeURIComponent(recruiterId)}`, {
+        cache: 'no-store',
+    });
+    if (!response.ok) throw new Error("Could not check your job post limit.");
+    return response.json();
 }
 
 export const deleteJob = async (jobId: string) => {
