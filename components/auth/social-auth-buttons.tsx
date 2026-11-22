@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { signIn } from "@/lib/auth-client"
 
-export type SocialAuthRole = "seeker" | "recruiter" | "admin"
+export type SocialAuthRole = "seeker" | "recruiter"
 
 type SocialAuthButtonsProps = {
   role?: SocialAuthRole
@@ -9,7 +9,7 @@ type SocialAuthButtonsProps = {
 }
 
 function isSocialAuthRole(value: string): value is SocialAuthRole {
-  return value === "seeker" || value === "recruiter" || value === "admin"
+  return value === "seeker" || value === "recruiter"
 }
 
 export function SocialAuthButtons({ role, onRoleChange }: SocialAuthButtonsProps) {
@@ -54,11 +54,9 @@ export function SocialAuthButtons({ role, onRoleChange }: SocialAuthButtonsProps
         >
           <option value="seeker">Job seeker</option>
           <option value="recruiter">Recruiter</option>
-          <option value="admin">Admin (request access)</option>
         </select>
         <p className="mt-2 text-xs leading-5 text-white/45">
-          This role applies to new accounts only. Existing accounts keep their
-          current role; admin access must be granted separately.
+          This choice is for new accounts. Existing accounts keep their saved role.
         </p>
       </div>
 

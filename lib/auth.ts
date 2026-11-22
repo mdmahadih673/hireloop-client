@@ -53,10 +53,14 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
-          const role = (await getOAuthState())?.role;
-          if (role === "seeker" || role === "recruiter" || role === "admin") {
-            return { data: { ...user, role } };
-          }
+          const requestedRole = (await getOAuthState())?.role ?? user.role;
+          const role = requestedRole === "recruiter" ? "recruiter" : "seeker";
+          return { data: { ...user, role } };
+        },
+      },
+      update: {
+        before: async (user) => {
+          if (Object.hasOwn(user, "role")) return false;
         },
       },
     },
