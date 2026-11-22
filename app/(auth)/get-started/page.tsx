@@ -8,6 +8,7 @@ import type { SocialAuthRole } from "@/components/auth/social-auth-buttons"
 import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react"
 import { signUp } from "@/lib/auth-client"
 import { useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 
 function getDestination(requestedDestination: string | null, role: SocialAuthRole) {
   return requestedDestination?.startsWith("/")
@@ -17,7 +18,7 @@ function getDestination(requestedDestination: string | null, role: SocialAuthRol
     : role === "recruiter" ? "/Dashboard/Recruiter" : "/Dashboard/Seeker"
 }
 
-export default function GetStartedPage() {
+function GetStartedContent() {
   const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [registrationError, setRegistrationError] = useState("")
@@ -251,5 +252,13 @@ export default function GetStartedPage() {
         </section>
       </div>
     </main>
+  )
+}
+
+export default function GetStartedPage() {
+  return (
+    <Suspense fallback={<main aria-label="Loading account form" className="min-h-svh bg-[#101014]" />}>
+      <GetStartedContent />
+    </Suspense>
   )
 }

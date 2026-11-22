@@ -2,13 +2,13 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useState, type FormEvent } from "react"
+import { Suspense, useState, type FormEvent } from "react"
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Sparkles } from "lucide-react"
 import { signIn } from "@/lib/auth-client"
 import { useSearchParams } from "next/navigation"
 
-export default function SignInPage() {
+function SignInContent() {
   const searchParams = useSearchParams()
   const requestedRedirect = searchParams.get("redirect") ?? "/"
   const redirect = requestedRedirect.startsWith("/")
@@ -228,5 +228,13 @@ export default function SignInPage() {
         </section>
       </div>
     </main>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<main aria-label="Loading sign in form" className="min-h-svh bg-[#101014]" />}>
+      <SignInContent />
+    </Suspense>
   )
 }
