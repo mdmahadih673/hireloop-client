@@ -47,45 +47,57 @@ export default function ApplyNow({ job }: { job: StoredJob }) {
       return
     }
 
-    const premimunResult = await getPremimunUserById(user.id)
-    console.log(premimunResult)
-
-    const countResult = await getApplicationsCount(`userId=${user.id}`)
-
-    if (!premimunResult.premium && countResult.count >= 5) {
-      router.push("/payment?amount=20")
-      return  
-    }
-
     setIsSubmitting(true)
-    const result = await applyToAJob({
-      data: {
-        jobId: job._id,
-        userId: user.id,
-        applicantName: user.name || "Hireloop member",
-        applicantEmail: user.email,
-        jobTitle: job.title,
-        companyName: job.companyName,
-        jobType: job.jobType,
-        location: job.location,
-        isRemote: job.isRemote,
-      },
-    })
+    try {
+      const [premiumResult, countResult] = await Promise.all([
+        getPremimunUserById(user.id),
+        getApplicationsCount(`userId=${user.id}`),
+      ])
 
-    if (result?.error) {
-      toast.add({ title: "Already applied", description: result.error, type: "warning" })
-      setAlreadyApplied(true)
-    } else {
-      toast.add({
-        title: "Application submitted",
-        description: `You applied to ${job.title} at ${job.companyName}.`,
-        type: "success",
+      if (!premiumResult.premium && countResult.count >= 2) {
+        router.push("/payment")
+        return
+      }
+
+      const result = await applyToAJob({
+        data: {
+          jobId: job._id,
+          userId: user.id,
+          applicantName: user.name || "Hireloop member",
+          applicantEmail: user.email,
+          jobTitle: job.title,
+          companyName: job.companyName,
+          jobType: job.jobType,
+          location: job.location,
+          isRemote: job.isRemote,
+        },
       })
-      setAlreadyApplied(true)
-      router.push("/browse-jobs")
-    }
 
-    setIsSubmitting(false)
+      if (result?.code === "JOB_APPLICATION_LIMIT_REACHED") {
+        router.push("/payment")
+        return
+      }
+
+      if (result?.error) {
+        toast.add({ title: "Could not apply", description: result.error, type: "warning" })
+      } else {
+        toast.add({
+          title: "Application submitted",
+          description: `You applied to ${job.title} at ${job.companyName}.`,
+          type: "success",
+        })
+        setAlreadyApplied(true)
+        router.push("/browse-jobs")
+      }
+    } catch (error) {
+      toast.add({
+        title: "Could not apply",
+        description: error instanceof Error ? error.message : "Please try again.",
+        type: "warning",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
