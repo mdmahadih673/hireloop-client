@@ -11,16 +11,12 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {
-  Bookmark,
   BriefcaseBusiness,
-  Building2,
   CreditCard,
   FileText,
   LayoutDashboard,
   PlusCircle,
-  Settings as SettingsIcon,
   UserRound,
-  UsersRound,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { useSession, signOut } from "@/lib/auth-client"
@@ -38,27 +34,20 @@ type MenuItem = {
 const menuItemsByRole: Record<string, MenuItem[]> = {
   admin: [
     { id: "dashboard", name: "Dashboard", url: "/Dashboard/Admin", icon: LayoutDashboard },
-    { id: "users", name: "Users", url: "/Dashboard/Admin/users", icon: UsersRound },
-    { id: "companies", name: "Companies", url: "/Dashboard/Admin/companies", icon: Building2 },
-    { id: "jobs", name: "Jobs", url: "/Dashboard/Admin/jobs", icon: BriefcaseBusiness },
-    { id: "payments", name: "Payments", url: "/Dashboard/Admin/payments", icon: CreditCard },
-    { id: "settings", name: "Settings", url: "/Dashboard/Admin/settings", icon: SettingsIcon },
   ],
   seeker: [
     { id: "dashboard", name: "Dashboard", url: "/Dashboard/Seeker", icon: LayoutDashboard },
-    { id: "jobs", name: "Jobs", url: "/Dashboard/Seeker/jobs", icon: BriefcaseBusiness },
-    { id: "saved-jobs", name: "Saved Jobs", url: "/Dashboard/Seeker/saved-jobs", icon: Bookmark },
+    { id: "jobs", name: "Browse Jobs", url: "/browse-jobs", icon: BriefcaseBusiness },
     { id: "applications", name: "Applications", url: "/Dashboard/Seeker/applications", icon: FileText },
-    { id: "billing", name: "Billing", url: "/Dashboard/Seeker/billing", icon: CreditCard },
-    { id: "settings", name: "Settings", url: "/Dashboard/Seeker/settings", icon: SettingsIcon },
+    { id: "premium", name: "Premium plans", url: "/payment", icon: CreditCard },
+    { id: "profile", name: "My profile", url: "/profile", icon: UserRound },
   ],
   recruiter: [
     { id: "dashboard", name: "Dashboard", url: "/Dashboard/Recruiter", icon: LayoutDashboard },
-    { id: "my-company", name: "My Company", url: "/Dashboard/Recruiter/companies", icon: Building2 },
     { id: "manage-jobs", name: "Manage Jobs", url: "/Dashboard/Recruiter/jobs", icon: BriefcaseBusiness },
     { id: "add-job", name: "Add Job", url: "/Dashboard/Recruiter/jobs/new", icon: PlusCircle },
-    { id: "applications", name: "Applications", url: "/Dashboard/Recruiter/applications", icon: FileText },
-    { id: "settings", name: "Settings", url: "/Dashboard/Recruiter/settings", icon: SettingsIcon },
+    { id: "premium", name: "Premium plan", url: "/Dashboard/Recruiter/Premium", icon: CreditCard },
+    { id: "profile", name: "My profile", url: "/profile", icon: UserRound },
   ],
 }
 
@@ -69,6 +58,10 @@ export function DashboardSidebar() {
   const routeRole = pathname.match(/^\/dashboard\/(admin|recruiter|seeker)(?:\/|$)/i)?.[1]?.toLowerCase()
   const requestedRole = routeRole ?? roleName
   const role = Object.hasOwn(menuItemsByRole, requestedRole) ? requestedRole : "seeker"
+  const currentPath = pathname.toLowerCase()
+  const activeMenuUrl = menuItemsByRole[role]
+    .filter((item) => currentPath === item.url.toLowerCase() || currentPath.startsWith(`${item.url.toLowerCase()}/`))
+    .sort((a, b) => b.url.length - a.url.length)[0]?.url.toLowerCase()
   const portalName = role === "seeker" ? "Seeker Portal" : `${role[0].toUpperCase()}${role.slice(1)} Portal`
 
   return (
@@ -87,7 +80,7 @@ export function DashboardSidebar() {
           <SidebarMenu>
             {menuItemsByRole[role].map((item) => (
               <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton isActive={pathname.toLowerCase() === item.url.toLowerCase()} render={<Link href={item.url} />}>
+                <SidebarMenuButton isActive={activeMenuUrl === item.url.toLowerCase()} render={<Link href={item.url} />}>
                   <item.icon />
                   <span>{item.name}</span>
                 </SidebarMenuButton>
