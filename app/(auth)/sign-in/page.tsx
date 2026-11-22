@@ -19,7 +19,7 @@ export default function SignInPage() {
 
     const formData = new FormData(event.currentTarget)
     try {
-      const { data, error } = await signIn.email({
+      const { error } = await signIn.email({
         email: formData.get("email") as string,
         password: formData.get("password") as string,
         callbackURL: redirect,
@@ -36,7 +36,6 @@ export default function SignInPage() {
         return
       }
 
-      console.log("Sign-in successful", data)
       window.location.assign(redirect)
     } catch (error: unknown) {
       console.error("Sign-in request failed", error)
