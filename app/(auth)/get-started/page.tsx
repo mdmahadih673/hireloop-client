@@ -22,7 +22,7 @@ function GetStartedContent() {
   const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [registrationError, setRegistrationError] = useState("")
-  const [role, setRole] = useState<SocialAuthRole>("seeker")
+  const [role, setRole] = useState<SocialAuthRole>(() => searchParams.get("role") === "recruiter" ? "recruiter" : "seeker")
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
