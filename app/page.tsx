@@ -1,12 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import {
-  BriefcaseBusiness,
-  Building2,
   MapPin,
   Search,
-  Star,
-  UsersRound,
 } from "lucide-react"
 import { FeaturesSection } from "@/components/homepage/features-section"
 
@@ -16,11 +12,10 @@ const trendingPositions = [
   "Dev-ops Engineer",
 ]
 
-const stats = [
-  { icon: BriefcaseBusiness, value: "50K", label: "Active Jobs" },
-  { icon: Building2, value: "12K", label: "Companies" },
-  { icon: UsersRound, value: "2M", label: "Job Seekers" },
-  { icon: Star, value: "97%", label: "Satisfaction Rate" },
+const highlights = [
+  { title: "Search open roles", description: "Filter listings by job type, location, salary, and more." },
+  { title: "Apply in one place", description: "Keep your applications together in your seeker dashboard." },
+  { title: "Follow your progress", description: "See status updates shared by recruiters." },
 ]
 
 export default function Page() {
@@ -64,10 +59,10 @@ export default function Page() {
               </span>
               <span className="whitespace-nowrap">
                 <span className="font-mono text-[26px] font-bold tracking-[0] text-white max-[720px]:text-sm">
-                  50,000+
+                  Hireloop
                 </span>{" "}
                 <span className="-ml-[5px] font-mono text-[26px] font-normal tracking-[0] text-[#8a8a8d] uppercase max-[720px]:-ml-0 max-[720px]:text-sm">
-                  New jobs this month
+                  Find work. Hire talent.
                 </span>
               </span>
             </div>
@@ -78,11 +73,10 @@ export default function Page() {
           </div>
 
           <h1 className="mt-5 text-3xl font-semibold tracking-[-0.045em] sm:text-4xl md:text-[46px]">
-            Find Your Dream Job Today
+            Find your next role on Hireloop
           </h1>
           <p className="mt-2 max-w-[560px] text-xs leading-5 text-white/55 sm:text-sm sm:leading-6">
-            HireLoop connects top talent with world-class companies. Browse
-            thousands of curated opportunities and land your next role — faster.
+            Search job listings, apply to roles, and follow recruiter updates. Recruiters can publish openings and manage applicants in the same platform.
           </p>
 
           <form
@@ -133,7 +127,7 @@ export default function Page() {
           </form>
 
           <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 text-[10px] sm:gap-2">
-            <span className="mr-1 text-white/45">Trending Position</span>
+            <span className="mr-1 text-white/45">Try a search</span>
             {trendingPositions.map((position) => (
               <Link
                 className="rounded-full border border-white/[0.08] bg-white/[0.08] px-2.5 py-1 text-white/75 transition hover:border-[#8e80ff]/50 hover:bg-[#6653ff]/20 hover:text-white"
@@ -148,29 +142,18 @@ export default function Page() {
 
         <div className="absolute inset-x-0 bottom-[270px] z-[110] mx-auto max-w-[620px] px-6 text-center sm:bottom-[174px]">
           <p className="text-xl font-medium leading-tight tracking-[-0.035em] text-white/80 sm:text-2xl">
-            Assisting over{" "}
-            <span className="text-white">15,000 job seekers</span>
-            <br className="hidden sm:block" /> find their dream positions.
+            Find a role. Apply. <span className="text-white">Follow every update.</span>
           </p>
         </div>
 
-        <div className="absolute inset-x-0 bottom-5 z-[120] mx-auto grid max-w-[1120px] grid-cols-2 gap-3 sm:bottom-8 sm:grid-cols-4 sm:gap-4">
-          {stats.map(({ icon: Icon, value, label }) => (
+        <div className="absolute inset-x-0 bottom-5 z-[120] mx-auto grid max-w-[920px] grid-cols-1 gap-3 sm:bottom-8 sm:grid-cols-3 sm:gap-4">
+          {highlights.map(({ title, description }) => (
             <article
-              className="min-h-[112px] rounded-xl border border-white/[0.09] bg-[linear-gradient(145deg,rgba(5,5,7,0.97),rgba(25,25,27,0.96))] p-3.5 shadow-[0_12px_30px_rgba(0,0,0,0.35)] sm:min-h-[138px] sm:rounded-2xl sm:p-4"
-              key={label}
+              className="min-h-24 rounded-xl border border-white/[0.09] bg-[linear-gradient(145deg,rgba(5,5,7,0.97),rgba(25,25,27,0.96))] p-4 shadow-[0_12px_30px_rgba(0,0,0,0.35)] sm:rounded-2xl sm:p-5"
+              key={title}
             >
-              <Icon
-                aria-hidden="true"
-                className="size-4 text-white/85"
-                strokeWidth={1.8}
-              />
-              <p className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:mt-8 sm:text-[30px]">
-                {value}
-              </p>
-              <p className="mt-1 text-[10px] text-white/75 sm:text-xs">
-                {label}
-              </p>
+              <h2 className="text-sm font-semibold">{title}</h2>
+              <p className="mt-2 text-xs leading-5 text-white/60">{description}</p>
             </article>
           ))}
         </div>

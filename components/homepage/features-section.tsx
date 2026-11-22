@@ -1,12 +1,10 @@
 import {
-  Bookmark,
-  ChartNoAxesColumnIncreasing,
-  FileUser,
-  Hexagon,
-  MousePointerClick,
+  BadgeCheck,
+  BriefcaseBusiness,
+  ClipboardList,
+  FileText,
   Search,
-  Building2,
-  TrendingUp,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react"
 
@@ -16,44 +14,34 @@ const features: {
   icon: LucideIcon
 }[] = [
   {
-    title: "Smart Search",
-    description: "Find your ideal job with advanced filters.",
+    title: "Search job listings",
+    description: "Filter open roles by title, work type, location, and salary.",
     icon: Search,
   },
   {
-    title: "Salary Insights",
-    description: "Get real salary data to negotiate confidently.",
-    icon: ChartNoAxesColumnIncreasing,
+    title: "Apply in one place",
+    description: "Send applications from job listings and keep them in your dashboard.",
+    icon: FileText,
   },
   {
-    title: "Top Companies",
-    description: "Apply to vetted companies that are hiring.",
-    icon: Building2,
+    title: "Track application status",
+    description: "See updates when a recruiter reviews, shortlists, or contacts you.",
+    icon: BadgeCheck,
   },
   {
-    title: "Saved Jobs",
-    description: "Manage apps & favorites on your dashboard.",
-    icon: Bookmark,
+    title: "Publish job posts",
+    description: "Recruiters can create and manage their own job listings.",
+    icon: BriefcaseBusiness,
   },
   {
-    title: "One-Click Apply",
-    description: "Simplify your job applications for an easier process!",
-    icon: MousePointerClick,
+    title: "Review applicants",
+    description: "Open a job post to see candidates and update their status.",
+    icon: UsersRound,
   },
   {
-    title: "Resume Builder",
-    description: "Create professional resumes with modern templates.",
-    icon: FileUser,
-  },
-  {
-    title: "Skill-Based Matching",
-    description: "Discover jobs that match your skills and experience.",
-    icon: Hexagon,
-  },
-  {
-    title: "Career Growth Resources",
-    description: "Boost your career with quick interview tips.",
-    icon: TrendingUp,
+    title: "One time Premium passes",
+    description: "Extend seeker applications or recruiter job posts for a fixed period.",
+    icon: ClipboardList,
   },
 ]
 
@@ -66,16 +54,16 @@ export function FeaturesSection() {
       <header className="text-center">
         <p className="flex items-center justify-center gap-3 font-mono text-xs text-white/70">
           <span aria-hidden="true" className="size-1.5 bg-[#6653ff]" />
-          FEATURES JOB
+          HIRELOOP FEATURES
           <span aria-hidden="true" className="size-1.5 bg-[#6653ff]" />
         </p>
         <h2
           className="mx-auto mt-3 max-w-[410px] text-[30px] font-medium leading-[1.12] tracking-[-0.04em] sm:text-[34px]"
           id="features-heading"
         >
-          Everything you need
+          Tools for your job search
           <br />
-          to succeed
+          and hiring workflow
         </h2>
       </header>
 
