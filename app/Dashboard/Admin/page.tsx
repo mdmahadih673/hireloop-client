@@ -1,41 +1,16 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
-import { BriefcaseBusiness, CreditCard, UsersRound } from "lucide-react"
+import { BriefcaseBusiness, FileText, UsersRound } from "lucide-react"
 import { getSesson } from "@/lib/core/server"
-import type { StoredJob } from "@/lib/types/jobs"
 
-type AdminUser = { _id: string; role?: string }
+type AdminStats = { userCount: number; jobCount: number; applicationCount: number }
 
 async function loadAdminData(cookie: string) {
   const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
-  const authHeaders = { cookie }
-
-  const [usersResult, jobsResult, applicationsResult] = await Promise.allSettled([
-    fetch(`${backendUrl}/users`, { headers: authHeaders, cache: "no-store" }).then(async (response) => {
-      if (!response.ok) throw new Error("Could not load users.")
-      return response.json() as Promise<AdminUser[]>
-    }),
-    fetch(`${backendUrl}/jobs`, { cache: "no-store" }).then(async (response) => {
-      if (!response.ok) throw new Error("Could not load jobs.")
-      return response.json() as Promise<StoredJob[]>
-    }),
-    fetch(`${backendUrl}/applications`, { headers: authHeaders, cache: "no-store" }).then(async (response) => {
-      if (!response.ok) throw new Error("Could not load applications.")
-      return response.json() as Promise<unknown[]>
-    }),
-  ])
-
-  const counts = {
-    users: usersResult.status === "fulfilled" ? usersResult.value.length : null,
-    jobs: jobsResult.status === "fulfilled" ? jobsResult.value.length : null,
-    applications: applicationsResult.status === "fulfilled" ? applicationsResult.value.length : null,
-  }
-  const errors = [usersResult, jobsResult, applicationsResult]
-    .filter((result) => result.status === "rejected")
-    .map((result) => result.reason instanceof Error ? result.reason.message : "Some dashboard data could not be loaded.")
-
-  return { counts, errors }
+  const response = await fetch(`${backendUrl}/admin/stats`, { headers: { cookie }, cache: "no-store" })
+  if (!response.ok) throw new Error("Platform statistics could not be loaded.")
+  return response.json() as Promise<AdminStats>
 }
 
 export default async function AdminDashboardPage() {
@@ -44,11 +19,17 @@ export default async function AdminDashboardPage() {
   if (session.user.role?.toLowerCase() !== "admin") redirect("/")
 
   const cookie = (await headers()).get("cookie") ?? ""
-  const { counts, errors } = await loadAdminData(cookie)
+  let stats: AdminStats | null = null
+  let error = ""
+  try {
+    stats = await loadAdminData(cookie)
+  } catch (loadError) {
+    error = loadError instanceof Error ? loadError.message : "Platform statistics could not be loaded."
+  }
   const cards = [
-    { label: "Registered users", value: counts.users, hint: "Across seeker and recruiter accounts", icon: UsersRound },
-    { label: "Job posts", value: counts.jobs, hint: "Listings currently in Hireloop", icon: BriefcaseBusiness },
-    { label: "Applications", value: counts.applications, hint: "Submitted across all job posts", icon: CreditCard },
+    { label: "Registered users", value: stats?.userCount, hint: "Across seeker and recruiter accounts", icon: UsersRound },
+    { label: "Job posts", value: stats?.jobCount, hint: "Listings currently in Hireloop", icon: BriefcaseBusiness },
+    { label: "Applications", value: stats?.applicationCount, hint: "Submitted across all job posts", icon: FileText },
   ]
 
   return (
@@ -60,9 +41,9 @@ export default async function AdminDashboardPage() {
           <p className="mt-2 text-sm text-white/50">A snapshot of users, job posts, and applications across the platform.</p>
         </header>
 
-        {errors.length > 0 && (
+        {error && (
           <div className="mt-6 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-sm text-amber-100" role="status">
-            Some totals are unavailable: {errors.join(" ")}
+            {error}
           </div>
         )}
 
