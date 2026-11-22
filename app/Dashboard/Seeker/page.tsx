@@ -1,11 +1,5 @@
-import React from 'react';
+import { SeekerDashboard } from "@/app/components/SeekerDashboard"
 
-const SeekerDashboardPage = () => {
-    return (
-        <div>
-            <h1>Seeker Dashboard</h1>
-        </div>
-    );
-};
-
-export default SeekerDashboardPage;
+export default function SeekerDashboardPage() {
+  return <SeekerDashboard />
+}
