@@ -10,7 +10,12 @@ import { useSearchParams } from "next/navigation"
 
 export default function SignInPage() {
   const searchParams = useSearchParams()
-  const redirect = searchParams.get("redirect") ?? "/"
+  const requestedRedirect = searchParams.get("redirect") ?? "/"
+  const redirect = requestedRedirect.startsWith("/")
+    && !requestedRedirect.startsWith("//")
+    && !requestedRedirect.includes("\\")
+    ? requestedRedirect
+    : "/"
   const [showPassword, setShowPassword] = useState(false)
   const [signInError, setSignInError] = useState("")
 
