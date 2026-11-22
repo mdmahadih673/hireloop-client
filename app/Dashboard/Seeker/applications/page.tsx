@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Bell, ChevronLeft, ChevronRight, Code2, Download, FileText, Mail, Search, UserRound } from "lucide-react"
 import type { ApplicationStatus, JobApplication } from "@/lib/types/applications"
 import { getApplicationsByUser } from "@/lib/actions/jobs"
@@ -37,6 +38,7 @@ function relativeDate(value: string) {
 
 export default function ApplicationsPage() {
   const { data: session, isPending } = useSession()
+  const router = useRouter()
   const userId = session?.user.id
   const [activeTab, setActiveTab] = useState<"active" | "archived">("active")
   const [search, setSearch] = useState("")
@@ -47,15 +49,18 @@ export default function ApplicationsPage() {
 
   useEffect(() => {
     if (isPending) return
-    if (!userId) return
+    if (!userId) {
+      router.replace("/sign-in?redirect=%2FDashboard%2FSeeker%2Fapplications")
+      return
+    }
 
     getApplicationsByUser(userId)
       .then(setAllApplications)
       .catch(() => setAllApplications([]))
       .finally(() => setLoading(false))
-  }, [userId, isPending])
+  }, [userId, isPending, router])
 
-  const isLoading = isPending || (Boolean(userId) && loading)
+  const isLoading = isPending || !userId || loading
 
   const applications = useMemo(() => allApplications
     .filter((application) => Boolean(application.archived) === (activeTab === "archived"))
