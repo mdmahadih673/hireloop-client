@@ -75,15 +75,19 @@ export function BrowseJobsResults({
   jobs,
   initialQuery = "",
   initialPage = 1,
+  initialFilters = emptyFilters,
+  initialSort = "recent",
 }: {
   jobs: StoredJob[]
   initialQuery?: string
   initialPage?: number
+  initialFilters?: Filters
+  initialSort?: string
 }) {
   const [searchInput, setSearchInput] = useState(initialQuery)
   const [query, setQuery] = useState(initialQuery)
-  const [filters, setFilters] = useState(emptyFilters)
-  const [sort, setSort] = useState("recent")
+  const [filters, setFilters] = useState(initialFilters)
+  const [sort, setSort] = useState(initialSort)
   const [currentPage, setCurrentPage] = useState(initialPage)
 
   const visibleJobs = useMemo(() => {
@@ -111,7 +115,7 @@ export function BrowseJobsResults({
           (!filters.categories.length ||
             filters.categories.includes(job.category)) &&
           (!filters.location ||
-            job.location
+            (job.location ?? "")
               .toLowerCase()
               .includes(filters.location.trim().toLowerCase())) &&
           (!filters.remoteOnly || job.isRemote) &&

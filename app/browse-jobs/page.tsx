@@ -10,6 +10,17 @@ export default async function BrowseJobsPage({
   const params = await searchParams
   const initialQuery = typeof params.q === "string" ? params.q : ""
   const initialPage = Number(params.page) > 0 ? Number(params.page) : 1
+  const initialFilters = {
+    jobTypes: typeof params.jobType === "string" ? [params.jobType] : Array.isArray(params.jobType) ? params.jobType : [],
+    categories: typeof params.category === "string" ? [params.category] : Array.isArray(params.category) ? params.category : [],
+    location: typeof params.location === "string" ? params.location : "",
+    remoteOnly: params.remote === "true",
+    minSalary: typeof params.minSalary === "string" ? params.minSalary : "",
+    maxSalary: typeof params.maxSalary === "string" ? params.maxSalary : "",
+  }
+  const initialSort = ["recent", "salary-high", "salary-low", "title"].includes(String(params.sort))
+    ? String(params.sort)
+    : "recent"
 
   const result = await listJobs()
     .then((jobs) => ({ jobs, error: "" }))
@@ -29,6 +40,8 @@ export default async function BrowseJobsPage({
           <BrowseJobsResults
             initialPage={initialPage}
             initialQuery={initialQuery}
+            initialFilters={initialFilters}
+            initialSort={initialSort}
             jobs={result.jobs}
           />
         )}

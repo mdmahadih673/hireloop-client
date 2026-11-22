@@ -11,7 +11,7 @@ export function BrowseJobSearch({
 }) {
   return (
     <form
-      action="#"
+      action="/browse-jobs"
       aria-label="Search jobs"
       className="flex flex-col gap-3 rounded-xl border border-white/[0.07] bg-[#141416] p-3 sm:flex-row sm:p-4"
       onSubmit={(event) => {
