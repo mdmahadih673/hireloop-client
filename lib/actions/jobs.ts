@@ -4,7 +4,8 @@ import { CreateJobApplication } from "../types/applications";
 
 export type { JobFormData, StoredJob } from "@/lib/types/jobs";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+const BASE_URL = typeof window === 'undefined' ? BACKEND_URL : '/api/backend';
 
 export interface JobData {
     [key: string]: unknown;
@@ -24,6 +25,7 @@ export const createJob = async (jobData: JobFormData) => {
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(jobData),
     });
     if (!response.ok) {
@@ -38,9 +40,10 @@ export const createJob = async (jobData: JobFormData) => {
     return result;
 }
 
-export const getRecruiterJobCount = async (recruiterId: string): Promise<{ count: number }> => {
-    const response = await fetch(`${BASE_URL}/jobs/count?recruiterId=${encodeURIComponent(recruiterId)}`, {
+export const getRecruiterJobCount = async (): Promise<{ count: number }> => {
+    const response = await fetch(`${BASE_URL}/jobs/count`, {
         cache: 'no-store',
+        credentials: 'include',
     });
     if (!response.ok) throw new Error("Could not check your job post limit.");
     return response.json();
@@ -49,6 +52,7 @@ export const getRecruiterJobCount = async (recruiterId: string): Promise<{ count
 export const deleteJob = async (jobId: string) => {
     const response = await fetch(`${BASE_URL}/jobs/${jobId}`, {
         method: 'DELETE',
+        credentials: 'include',
     });
     return parseJsonOrThrow(response, "Could not delete the job post.");
 }
@@ -59,14 +63,16 @@ export async function applyToAJob({data}:{data:CreateJobApplication}) {
         headers: {
             'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(data),
     })
     return parseJsonOrThrow(res, "Could not submit your application.");
 }
 
-export const getApplicationsByUser = async (query= ''): Promise<JobApplication[]> => {
-    const response = await fetch(`${BASE_URL}/applications?userId=${encodeURIComponent(query)}`, {
+export const getApplicationsByUser = async (_query= ''): Promise<JobApplication[]> => {
+    const response = await fetch(`${BASE_URL}/applications`, {
         cache: 'no-store',
+        credentials: 'include',
     });
     if (!response.ok) {
         throw new Error("Could not load your applications.");
@@ -74,19 +80,21 @@ export const getApplicationsByUser = async (query= ''): Promise<JobApplication[]
     return response.json();
 }
 
-export const getApplicationsByJobId = async (jobId: string): Promise<JobApplication[]> => {
+export const getApplicationsByJobId = async (jobId: string, cookie?: string): Promise<JobApplication[]> => {
     const response = await fetch(`${BASE_URL}/applications?jobId=${encodeURIComponent(jobId)}`, {
+        headers: cookie ? { cookie } : undefined,
         cache: 'no-store',
     });
     if (!response.ok) throw new Error("Could not load applicants for this job.");
     return response.json();
 }
 
-export const updateApplicationStatus = async (applicationId: string, status: ApplicationStatus, recruiterId: string) => {
+export const updateApplicationStatus = async (applicationId: string, status: ApplicationStatus) => {
     const response = await fetch(`${BASE_URL}/applications/${encodeURIComponent(applicationId)}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, recruiterId }),
+        body: JSON.stringify({ status }),
+        credentials: 'include',
     });
     if (!response.ok) {
         const body = await response.json().catch(() => null) as { error?: string } | null;
@@ -95,10 +103,11 @@ export const updateApplicationStatus = async (applicationId: string, status: App
     return response.json() as Promise<{ success: boolean; status: ApplicationStatus }>;
 }
 
-export const getApplicationCountsByJobIds = async (jobIds: string[]): Promise<Record<string, number>> => {
+export const getApplicationCountsByJobIds = async (jobIds: string[], cookie?: string): Promise<Record<string, number>> => {
     if (jobIds.length === 0) return {};
     const params = new URLSearchParams({ jobIds: jobIds.join(",") });
     const response = await fetch(`${BASE_URL}/applications/counts?${params}`, {
+        headers: cookie ? { cookie } : undefined,
         cache: 'no-store',
     });
     if (!response.ok) throw new Error("Could not load applicant counts.");
@@ -110,6 +119,7 @@ export const getApplicationsCount = async (query= ''): Promise<{count : number}>
     const search = query ? `?${query}` : '';
     const response = await fetch(`${BASE_URL}/applications/count${search}`, {
         cache: 'no-store',
+        credentials: 'include',
     });
     if (!response.ok) {
         throw new Error("Could not load your applications.");
@@ -132,6 +142,6 @@ export const checkoutVerify=async (sessionId : string)=>{
 
 // getPremimunUserById
 export const getPremimunUserById = async(userId : string)=>{
-    const res = await fetch(`${BASE_URL}/users/${userId}/premimun`)
+    const res = await fetch(`${BASE_URL}/users/${userId}/premimun`, { credentials: 'include' })
     return res.json()
 }

@@ -31,7 +31,7 @@ export function ApplicantStatusSelect({ applicationId, initialStatus }: { applic
     setSaving(true)
     setError("")
     try {
-      await updateApplicationStatus(applicationId, nextStatus, recruiter.id)
+      await updateApplicationStatus(applicationId, nextStatus)
     } catch (updateError) {
       setStatus(previousStatus)
       setError(updateError instanceof Error ? updateError.message : "Could not update status.")

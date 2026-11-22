@@ -23,6 +23,7 @@ import { JobInfo, StatusBadge } from "@/components/jobs/JobListingMeta"
 import { getSesson } from "@/lib/core/server"
 import { redirect } from "next/navigation"
 import { getApplicationCountsByJobIds } from "@/lib/actions/jobs"
+import { headers } from "next/headers"
 
 function getSalary(job: StoredJob) {
   const range = [job.minSalary, job.maxSalary].filter(Boolean).join(" – ")
@@ -82,9 +83,10 @@ export default async function JobsPage() {
   const session = await getSesson()
   if (!session?.user) redirect("/sign-in")
   if (session.user.role?.toLowerCase() !== "recruiter") redirect("/")
+  const requestHeaders = await headers()
 
   const result = await listJobs(`recruiterId=${encodeURIComponent(session.user.id)}`)
-    .then(async (jobs) => ({ jobs, applicantCounts: await getApplicationCountsByJobIds(jobs.map((job) => job._id)), error: null as string | null }))
+    .then(async (jobs) => ({ jobs, applicantCounts: await getApplicationCountsByJobIds(jobs.map((job) => job._id), requestHeaders.get("cookie") ?? undefined), error: null as string | null }))
     .catch((loadError: unknown) => ({
       jobs: [] as StoredJob[],
       applicantCounts: {} as Record<string, number>,

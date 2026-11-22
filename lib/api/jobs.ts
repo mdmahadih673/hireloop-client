@@ -1,6 +1,7 @@
 import type { StoredJob } from "../actions/jobs";
 
- const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+ const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
+ const baseUrl = typeof window === 'undefined' ? BACKEND_URL : '/api/backend';
 
 const ensureOk = (response: Response, message: string) =>
     response.ok ? response : (() => { throw new Error(message) })();
@@ -30,6 +31,7 @@ export const updateJob = async (id: string, jobData: Omit<StoredJob, "_id">): Pr
     const response = await fetch(`${baseUrl}/jobs/${encodeURIComponent(id)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(jobData),
     });
     response.ok || await response.text()

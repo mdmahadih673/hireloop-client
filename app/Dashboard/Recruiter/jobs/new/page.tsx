@@ -124,7 +124,7 @@ export default function NewJobPage() {
     setPublishError("")
     try {
       const [{ count }, premiumResult] = await Promise.all([
-        getRecruiterJobCount(user.id),
+        getRecruiterJobCount(),
         getPremimunUserById(user.id),
       ])
       if (!premiumResult?.premium && count >= 2) {

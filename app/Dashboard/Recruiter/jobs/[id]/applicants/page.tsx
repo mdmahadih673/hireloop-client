@@ -5,6 +5,7 @@ import { getApplicationsByJobId } from "@/lib/actions/jobs"
 import { getJobById } from "@/lib/api/jobs"
 import { getSesson } from "@/lib/core/server"
 import { ApplicantStatusSelect } from "./ApplicantStatusSelect"
+import { headers } from "next/headers"
 
 function formatAppliedAt(value: string) {
   const date = new Date(value)
@@ -14,14 +15,14 @@ function formatAppliedAt(value: string) {
 }
 
 export default async function JobApplicantsPage({ params }: { params: Promise<{ id: string }> }) {
-  const [{ id }, session] = await Promise.all([params, getSesson()])
+  const [{ id }, session, requestHeaders] = await Promise.all([params, getSesson(), headers()])
   if (!session?.user) redirect("/sign-in")
   if (session.user.role?.toLowerCase() !== "recruiter") redirect("/")
 
   const job = await getJobById(id).catch(() => null)
   if (!job || job.recruiterId !== session.user.id) redirect("/Dashboard/Recruiter/jobs")
 
-  const applications = await getApplicationsByJobId(id).catch(() => [])
+  const applications = await getApplicationsByJobId(id, requestHeaders.get("cookie") ?? undefined).catch(() => [])
 
   return (
     <main className="min-h-svh bg-[#111111] px-4 py-6 text-white sm:px-6 lg:px-8">
