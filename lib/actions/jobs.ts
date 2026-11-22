@@ -129,11 +129,12 @@ export const getApplicationsCount = async (query= ''): Promise<{count : number}>
 
 // payment api
 
-export const checkoutVerify=async (sessionId : string)=>{
+export const checkoutVerify=async (sessionId : string, cookie: string)=>{
     const res = await fetch(`${BASE_URL}/payment/checkout-verify`,{
         method:'POST',
         headers:{
-           'Content-Type': 'application/json'
+           'Content-Type': 'application/json',
+           cookie,
         },
         body: JSON.stringify({ sessionId })
     })

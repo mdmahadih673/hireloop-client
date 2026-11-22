@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
 import { checkoutVerify } from "@/lib/actions/jobs"
 import { getSesson } from "@/lib/core/server"
 import { stripe } from "@/lib/stripe"
@@ -73,7 +74,7 @@ export default async function PaymentSuccessfulPage({
     throw new Error("Please provide a valid session_id (`cs_test_...`).")
   }
 
-  const userSession = await getSesson()
+  const [userSession, requestHeaders] = await Promise.all([getSesson(), headers()])
   if (!userSession?.user) redirect("/sign-in")
 
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
@@ -92,7 +93,7 @@ export default async function PaymentSuccessfulPage({
     redirect(session.metadata?.role === "recruiter" ? "/Dashboard/Recruiter/Premium" : "/payment")
   }
 
-  await checkoutVerify(sessionId)
+  await checkoutVerify(sessionId, requestHeaders.get("cookie") ?? "")
 
   const { transactionId, invoiceId } = await getPaymentReferences(session)
   const customerEmail =
