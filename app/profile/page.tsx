@@ -9,6 +9,11 @@ export default function ProfilePage() {
   const { data: session, isPending } = useSession()
   const router = useRouter()
   const user = session?.user
+  const dashboardUrl = user?.role?.toLowerCase() === "admin"
+    ? "/Dashboard/Admin"
+    : user?.role?.toLowerCase() === "recruiter"
+      ? "/Dashboard/Recruiter"
+      : "/Dashboard/Seeker"
 
   useEffect(() => {
     !isPending && !user && router.replace("/sign-in")
@@ -21,7 +26,7 @@ export default function ProfilePage() {
   ) : (
     <main className="min-h-svh bg-[#101014] px-5 py-12 text-white sm:px-8">
       <section className="mx-auto max-w-3xl">
-        <Link className="text-sm text-[#b3a8ff] hover:text-white" href="/dashboard">← Dashboard</Link>
+        <Link className="text-sm text-[#b3a8ff] hover:text-white" href={dashboardUrl}>← Dashboard</Link>
         <div className="mt-7 rounded-2xl border border-white/10 bg-white/[0.035] p-6 sm:p-9">
           <p className="text-sm font-medium text-[#a99dff]">Account</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight">My Profile</h1>
