@@ -118,7 +118,7 @@ export default function SignInPage() {
               New to Hireloop?{" "}
               <Link
                 className="font-medium text-[#a99dff] transition-colors hover:text-white"
-                href="/get-started"
+                href={`/get-started?redirect=${encodeURIComponent(redirect)}`}
               >
                 Create account
               </Link>
@@ -135,7 +135,7 @@ export default function SignInPage() {
                 Enter your details below to access your account.
               </p>
 
-              <SocialAuthButtons />
+              <SocialAuthButtons callbackURL={redirect} />
 
               <form className="space-y-5" onSubmit={handleSubmit}>
                 <div>

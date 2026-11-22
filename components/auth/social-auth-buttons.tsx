@@ -6,13 +6,14 @@ export type SocialAuthRole = "seeker" | "recruiter"
 type SocialAuthButtonsProps = {
   role?: SocialAuthRole
   onRoleChange?: (role: SocialAuthRole) => void
+  callbackURL?: string
 }
 
 function isSocialAuthRole(value: string): value is SocialAuthRole {
   return value === "seeker" || value === "recruiter"
 }
 
-export function SocialAuthButtons({ role, onRoleChange }: SocialAuthButtonsProps) {
+export function SocialAuthButtons({ role, onRoleChange, callbackURL = "/" }: SocialAuthButtonsProps) {
   const [localRole, setLocalRole] = useState<SocialAuthRole>("seeker")
   const selectedRole = role ?? localRole
 
@@ -29,7 +30,7 @@ export function SocialAuthButtons({ role, onRoleChange }: SocialAuthButtonsProps
   async function handleProviderClick(provider: "google" | "github") {
     await signIn.social({
       provider,
-      callbackURL: "/",
+      callbackURL,
       additionalData: { role: selectedRole },
     })
   }

@@ -7,8 +7,18 @@ import { SocialAuthButtons } from "@/components/auth/social-auth-buttons"
 import type { SocialAuthRole } from "@/components/auth/social-auth-buttons"
 import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react"
 import { signUp } from "@/lib/auth-client"
+import { useSearchParams } from "next/navigation"
+
+function getDestination(requestedDestination: string | null, role: SocialAuthRole) {
+  return requestedDestination?.startsWith("/")
+    && !requestedDestination.startsWith("//")
+    && !requestedDestination.includes("\\")
+    ? requestedDestination
+    : role === "recruiter" ? "/Dashboard/Recruiter" : "/Dashboard/Seeker"
+}
 
 export default function GetStartedPage() {
+  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [registrationError, setRegistrationError] = useState("")
   const [role, setRole] = useState<SocialAuthRole>("seeker")
@@ -18,7 +28,7 @@ export default function GetStartedPage() {
     setRegistrationError("")
 
     const formData = new FormData(event.currentTarget)
-    const destination = role === "recruiter" ? "/Dashboard/Recruiter" : "/Dashboard/Seeker"
+    const destination = getDestination(searchParams.get("redirect"), role)
 
     try {
       const { error } = await signUp.email({
@@ -130,7 +140,7 @@ export default function GetStartedPage() {
                 A few details are all it takes to join Hireloop.
               </p>
 
-              <SocialAuthButtons onRoleChange={setRole} role={role} />
+              <SocialAuthButtons callbackURL={getDestination(searchParams.get("redirect"), role)} onRoleChange={setRole} role={role} />
 
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>

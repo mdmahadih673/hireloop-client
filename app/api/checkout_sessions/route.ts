@@ -13,30 +13,44 @@ const plans = {
     quarterly: { name: "Hireloop Recruiter Premium · 90 days", amount: 399900, durationDays: 90 },
     annual: { name: "Hireloop Recruiter Premium · 365 days", amount: 1499900, durationDays: 365 },
   },
+} as const
+
+type PlanRole = keyof typeof plans
+type PlanId = keyof typeof plans.seeker
+
+function isPlanRole(value: unknown): value is PlanRole {
+  return value === "seeker" || value === "recruiter"
 }
 
-export async function POST(request: Request) {
-  const session = await getSesson()
+function isPlanId(value: unknown): value is PlanId {
+  return value === "monthly" || value === "quarterly" || value === "annual"
+}
+
+async function startCheckout(request: Request, role: unknown, planId: unknown) {
   const origin = new URL(request.url).origin
-
-  if (!session?.user) {
-    return NextResponse.redirect(new URL("/sign-in", origin), 303)
-  }
-
-  const formData = await request.formData()
-  const role = formData.get("role")
-  const planId = formData.get("planId")
-  const userRole = session.user.role?.toLowerCase()
-
-  if ((role !== "seeker" && role !== "recruiter") || role !== userRole) {
-    return NextResponse.json({ error: "Your account cannot purchase this plan." }, { status: 403 })
-  }
-  if (typeof planId !== "string" || !(planId in plans[role])) {
+  if (!isPlanRole(role) || !isPlanId(planId)) {
     return NextResponse.json({ error: "Choose a valid subscription plan." }, { status: 400 })
   }
 
-  const plan = plans[role][planId as keyof typeof plans.seeker]
-  const durationDays = plan.durationDays
+  const session = await getSesson()
+  if (!session?.user) {
+    const returnTo = new URL("/api/checkout_sessions", origin)
+    returnTo.searchParams.set("role", role)
+    returnTo.searchParams.set("planId", planId)
+    const signIn = new URL("/sign-in", origin)
+    signIn.searchParams.set("redirect", `${returnTo.pathname}${returnTo.search}`)
+    return NextResponse.redirect(signIn, 303)
+  }
+
+  const userRole = session.user.role?.toLowerCase()
+  if (role !== userRole) {
+    const planPage = userRole === "recruiter" ? "/Dashboard/Recruiter/Premium" : "/payment"
+    const mismatch = new URL(planPage, origin)
+    mismatch.searchParams.set("roleMismatch", "true")
+    return NextResponse.redirect(mismatch, 303)
+  }
+
+  const plan = plans[role][planId]
   const successPath = role === "recruiter"
     ? "/Dashboard/Recruiter/payment/success"
     : "/payment/success"
@@ -56,15 +70,27 @@ export async function POST(request: Request) {
         quantity: 1,
       }],
       customer_email: session.user.email,
-      metadata: { userId: session.user.id, role, planId, durationDays: String(durationDays) },
+      metadata: { userId: session.user.id, role, planId, durationDays: String(plan.durationDays) },
       success_url: `${origin}${successPath}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}${cancelPath}`,
     })
 
     if (!checkout.url) throw new Error("Stripe did not return a checkout URL.")
     return NextResponse.redirect(checkout.url, 303)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not start checkout."
-    return NextResponse.json({ error: message }, { status: 500 })
+  } catch {
+    const planPage = role === "recruiter" ? "/Dashboard/Recruiter/Premium" : "/payment"
+    const errorUrl = new URL(planPage, origin)
+    errorUrl.searchParams.set("checkoutError", "true")
+    return NextResponse.redirect(errorUrl, 303)
   }
+}
+
+export async function POST(request: Request) {
+  const formData = await request.formData()
+  return startCheckout(request, formData.get("role"), formData.get("planId"))
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  return startCheckout(request, searchParams.get("role"), searchParams.get("planId"))
 }
