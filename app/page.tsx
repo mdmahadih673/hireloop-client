@@ -7,6 +7,9 @@ import {
 import { FeaturesSection } from "@/components/homepage/features-section"
 import { HowItWorksSection, PremiumCalloutSection, CommonQuestionsSection } from "@/components/homepage/homepage-sections"
 import { TaglineReveal } from "@/components/homepage/tagline-reveal"
+import { FeaturedJobsSection } from "@/components/homepage/featured-jobs-section"
+import { listJobs } from "@/lib/api/jobs"
+import type { StoredJob } from "@/lib/types/jobs"
 
 const trendingPositions = [
   "Product Designer",
@@ -20,7 +23,21 @@ const highlights = [
   { title: "Follow your progress", description: "See status updates shared by recruiters." },
 ]
 
-export default function Page() {
+function isActiveJob(job: StoredJob, now: number) {
+  if (job.status?.trim()) return job.status.trim().toLowerCase() === "active"
+  if (!job.deadline) return true
+  const deadline = new Date(`${job.deadline}T23:59:59`).getTime()
+  return Number.isNaN(deadline) || deadline >= now
+}
+
+export default async function Page() {
+  const result = await listJobs()
+    .then((jobs) => ({
+      jobs: jobs.filter((job) => isActiveJob(job, Date.now())).slice(0, 6),
+      error: "",
+    }))
+    .catch(() => ({ jobs: [] as StoredJob[], error: "Could not load the latest jobs." }))
+
   return (
     <>
       <main className="relative isolate min-h-[900px] overflow-hidden bg-[#f7f7fb] px-4 text-zinc-950 transition-colors dark:bg-[#08080a] dark:text-white sm:min-h-0 sm:px-6">
@@ -155,6 +172,7 @@ export default function Page() {
         </div>
       </section>
       </main>
+      <FeaturedJobsSection error={result.error} jobs={result.jobs} />
       <FeaturesSection />
       <TaglineReveal text="Make your next move with more clarity and less guesswork." />
       <HowItWorksSection />
